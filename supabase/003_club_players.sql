@@ -53,3 +53,5 @@ CREATE POLICY "admin_write_club_players" ON club_players
     OR auth.role() = 'authenticated'
     OR auth.role() = 'anon'
   );
+
+NOTIFY pgrst, 'reload schema';

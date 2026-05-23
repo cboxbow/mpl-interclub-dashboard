@@ -1,6 +1,6 @@
 import { getSupabaseAdmin } from '@/lib/supabase'
 import type { Journee, Match, Division } from '@/lib/types'
-import { CalendarDays } from 'lucide-react'
+import { CalendarDays, ShieldCheck } from 'lucide-react'
 
 export const revalidate = 3600
 
@@ -24,10 +24,26 @@ export default async function CalendarPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <CalendarDays size={22} className="text-cyan"/>
-        <h1 className="text-2xl font-bold">Calendrier Officiel</h1>
-        <span className="text-sm text-gray-500">3e vendredi de chaque mois</span>
+      <div className="glass-panel rounded-2xl p-5 sm:p-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <CalendarDays size={22} className="text-cyan"/>
+              <h1 className="interclub-title text-3xl sm:text-4xl font-black uppercase">Calendrier officiel</h1>
+            </div>
+            <p className="text-sm text-cyan mt-2 font-semibold uppercase tracking-[0.18em]">
+              Every club. Every player. Every point counts.
+            </p>
+            <p className="text-sm text-gray-400 mt-1">3e vendredi de chaque mois</p>
+          </div>
+          <div className="flex items-start gap-3 rounded-xl border border-cyan/20 bg-cyan/10 p-3 max-w-md">
+            <ShieldCheck size={20} className="text-cyan shrink-0 mt-0.5"/>
+            <div>
+              <div className="text-sm font-black uppercase text-white">Play up allowed</div>
+              <div className="text-xs text-gray-300">Play down forbidden: regle fondamentale Interclub 2026.</div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">

@@ -2,7 +2,7 @@ import { getSupabaseAdmin } from '@/lib/supabase'
 import type { Division, Standing, Journee } from '@/lib/types'
 import StandingsTable from '@/components/StandingsTable'
 import Link from 'next/link'
-import { Calendar, ChevronRight } from 'lucide-react'
+import { Calendar, ChevronRight, ShieldCheck, TrendingUp, Users } from 'lucide-react'
 
 const DIV_COLORS: Record<string, string> = {
   '01D0FB': 'border-cyan/40 bg-cyan/5',
@@ -14,7 +14,7 @@ const DIV_COLORS: Record<string, string> = {
   '10B981': 'border-emerald-400/40 bg-emerald-500/5',
 }
 
-export const revalidate = 60 // revalidate every 60s
+export const revalidate = 60
 
 export default async function DashboardPage() {
   const sb = getSupabaseAdmin()
@@ -31,38 +31,66 @@ export default async function DashboardPage() {
   })
 
   const nextJournee = (journees ?? []).find((j: Journee) => j.status !== 'completed')
+  const totalClubs = (divisions ?? []).reduce((sum: number, div: Division) => sum + div.n_clubs, 0)
 
   return (
     <div className="space-y-6">
-      {/* Hero */}
-      <div className="bg-gradient-to-r from-navy to-navy-800 rounded-2xl border border-cyan/20 p-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-white">MPL Interclub Championship</h1>
-            <p className="text-cyan text-sm mt-1">Saison 1 · 2026 – 2027 · 7 divisions · 38 clubs</p>
-          </div>
-          {nextJournee && (
-            <div className="bg-cyan/10 border border-cyan/30 rounded-xl px-4 py-3 text-center">
-              <div className="text-xs text-gray-400 mb-1">Prochaine journée</div>
-              <div className="font-bold text-cyan text-lg">J{nextJournee.number}</div>
-              <div className="text-sm text-gray-300">{nextJournee.label}</div>
-              <Link href="/calendar" className="text-xs text-cyan/70 hover:text-cyan mt-1 flex items-center justify-center gap-1">
-                <Calendar size={11}/> Voir le calendrier
-              </Link>
+      <div className="glass-panel rounded-2xl overflow-hidden">
+        <div className="neon-rule relative p-6 sm:p-8">
+          <div className="absolute inset-x-0 bottom-0 h-px bg-cyan shadow-[0_0_28px_rgba(1,208,251,0.95)]" />
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="max-w-3xl">
+              <div className="text-xs font-bold uppercase tracking-[0.34em] interclub-blue-text mb-2">
+                One island. {totalClubs || 38} clubs. 1 identity.
+              </div>
+              <h1 className="interclub-title text-4xl sm:text-6xl lg:text-7xl font-black uppercase leading-none">
+                Interclub 2026
+              </h1>
+              <p className="text-cyan text-sm sm:text-base mt-3 font-semibold uppercase tracking-[0.2em]">
+                Every club. Every player. Every point counts.
+              </p>
+              <p className="text-gray-300 text-sm mt-3">
+                Saison 1 · 2026 - 2027 · 7 divisions · championnat officiel Mauritius Padel League.
+              </p>
             </div>
-          )}
+            {nextJournee && (
+              <div className="bg-cyan/10 border border-cyan/30 rounded-xl px-4 py-3 text-center shadow-[0_0_30px_rgba(1,208,251,0.16)]">
+                <div className="text-xs text-gray-300 mb-1">Prochaine journee</div>
+                <div className="font-black interclub-blue-text text-3xl">J{nextJournee.number}</div>
+                <div className="text-sm text-white">{nextJournee.label}</div>
+                <Link href="/calendar" className="text-xs text-cyan/80 hover:text-cyan mt-2 flex items-center justify-center gap-1">
+                  <Calendar size={11}/> Voir le calendrier
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Division cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="glass-panel rounded-xl p-4">
+          <Users size={22} className="text-cyan mb-3"/>
+          <div className="font-black uppercase text-white">Every club</div>
+          <p className="text-sm text-gray-300 mt-1">Chaque division garde son identite, son classement et son calendrier.</p>
+        </div>
+        <div className="glass-panel rounded-xl p-4">
+          <TrendingUp size={22} className="text-cyan mb-3"/>
+          <div className="font-black uppercase text-white">Every point counts</div>
+          <p className="text-sm text-gray-300 mt-1">PTS, paires, sets et jeux departagent les clubs jusqu'au dernier match.</p>
+        </div>
+        <div className="glass-panel rounded-xl p-4">
+          <ShieldCheck size={22} className="text-cyan mb-3"/>
+          <div className="font-black uppercase text-white">Play up allowed</div>
+          <p className="text-sm text-gray-300 mt-1">Play down forbidden: la regle fondamentale Interclub 2026 reste visible.</p>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {(divisions ?? []).map((div: Division) => {
           const standings = (standingsByDiv[div.id] ?? []).slice(0, 4)
           const borderCls = DIV_COLORS[div.color] ?? 'border-white/10 bg-white/5'
           return (
-            <div key={div.id}
-              className={`rounded-xl border overflow-hidden ${borderCls}`}>
-              {/* Division header */}
+            <div key={div.id} className={`rounded-xl border overflow-hidden ${borderCls}`}>
               <div className="px-4 py-3 flex items-center justify-between"
                 style={{ borderBottom: `1px solid #${div.color}30` }}>
                 <div className="flex items-center gap-2">
@@ -75,7 +103,6 @@ export default async function DashboardPage() {
                   Voir tout <ChevronRight size={12}/>
                 </Link>
               </div>
-              {/* Mini standings */}
               <div className="p-2">
                 <StandingsTable standings={standings} compact />
               </div>

@@ -25,3 +25,37 @@ body::before {
 
 a, button { -webkit-tap-highlight-color: transparent; }
 .scrollbar-hidden::-webkit-scrollbar { display: none; }
+
+.interclub-title {
+  color: #fff;
+  letter-spacing: 0;
+  text-shadow:
+    0 0 10px rgba(255, 255, 255, 0.8),
+    0 0 26px rgba(1, 208, 251, 0.85),
+    0 0 52px rgba(0, 89, 255, 0.7);
+}
+
+.interclub-blue-text {
+  color: #01D0FB;
+  text-shadow:
+    0 0 8px rgba(1, 208, 251, 0.95),
+    0 0 24px rgba(0, 89, 255, 0.72);
+}
+
+.glass-panel {
+  background:
+    linear-gradient(135deg, rgba(1, 15, 39, 0.86), rgba(0, 22, 76, 0.52)),
+    rgba(0, 0, 0, 0.24);
+  border: 1px solid rgba(1, 208, 251, 0.24);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 20px 60px rgba(0, 0, 0, 0.35),
+    0 0 34px rgba(1, 208, 251, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.neon-rule {
+  background:
+    radial-gradient(circle at 50% 100%, rgba(1, 208, 251, 0.5), transparent 36%),
+    linear-gradient(180deg, rgba(0, 5, 18, 0.62), rgba(0, 14, 50, 0.84));
+}

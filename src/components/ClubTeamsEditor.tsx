@@ -1,7 +1,7 @@
 'use client'
 
 import { Fragment, useMemo, useRef, useState } from 'react'
-import { Download, FileSpreadsheet, Plus, Save, Trash2, Upload } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, Download, FileSpreadsheet, Plus, Save, Trash2, Upload } from 'lucide-react'
 import type { Club, ClubPlayer, Division } from '@/lib/types'
 import { getSupabase } from '@/lib/supabase'
 import Image from 'next/image'
@@ -20,6 +20,10 @@ const blankPlayer = (clubId: number, order: number): PlayerDraft => ({
   last_name: '',
   first_name: '',
   ranking: null,
+  player_status: 'NvEQ',
+  is_unranked: false,
+  player_confirmed: false,
+  club_validated: false,
   license_number: '',
   category: '',
   phone: '',
@@ -29,6 +33,7 @@ const blankPlayer = (clubId: number, order: number): PlayerDraft => ({
 })
 
 const clean = (value: unknown) => String(value ?? '').trim()
+const asBool = (value: unknown) => ['1', 'true', 'oui', 'yes', 'x'].includes(clean(value).toLowerCase())
 
 export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Props) {
   const fileRef = useRef<HTMLInputElement | null>(null)
@@ -67,7 +72,21 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
     (playersByClub[clubId] ?? []).reduce((sum, player) => sum + (Number(player.ranking) || 0), 0)
   )
 
-  const updatePlayer = (clubId: number, localId: string, field: keyof ClubPlayer, value: string) => {
+  const activePlayers = (clubId: number) => (
+    (playersByClub[clubId] ?? []).filter(player => player.last_name || player.first_name || player.ranking !== null || player.is_unranked)
+  )
+
+  const warningsForClub = (clubId: number) => {
+    const active = activePlayers(clubId)
+    const warnings: string[] = []
+    if (active.length > 0 && active.length < 6) warnings.push('Minimum 6 joueurs requis pour jouer.')
+    if (active.length > 9) warnings.push('Maximum 9 joueurs sur une feuille de match.')
+    if (active.some(player => !player.player_confirmed || !player.club_validated)) warnings.push('Joueurs a confirmer et valider.')
+    if (active.some(player => player.is_unranked && player.ranking !== null)) warnings.push('Joueur non classe avec un rang renseigne.')
+    return warnings
+  }
+
+  const updatePlayer = (clubId: number, localId: string, field: keyof ClubPlayer, value: string | boolean) => {
     setPlayersByClub(prev => ({
       ...prev,
       [clubId]: (prev[clubId] ?? []).map(player => player.local_id === localId
@@ -104,6 +123,10 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
         last_name: player.last_name.trim(),
         first_name: player.first_name.trim(),
         ranking: player.ranking === null || Number.isNaN(Number(player.ranking)) ? null : Number(player.ranking),
+        player_status: player.player_status ?? 'NvEQ',
+        is_unranked: Boolean(player.is_unranked),
+        player_confirmed: Boolean(player.player_confirmed),
+        club_validated: Boolean(player.club_validated),
         license_number: clean(player.license_number) || null,
         category: clean(player.category) || null,
         phone: clean(player.phone) || null,
@@ -111,7 +134,7 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
         notes: clean(player.notes) || null,
         player_order: index,
       }))
-      .filter(player => player.last_name || player.first_name || player.ranking !== null || player.license_number || player.category || player.phone || player.email || player.notes)
+      .filter(player => player.last_name || player.first_name || player.ranking !== null || player.is_unranked || player.license_number || player.category || player.phone || player.email || player.notes)
 
     const sb = getSupabase()
     const { error: deleteError } = await sb.from('club_players').delete().eq('club_id', clubId)
@@ -152,6 +175,10 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
           nom: player.last_name,
           prenom: player.first_name,
           rang: player.ranking,
+          statut: player.player_status ?? 'NvEQ',
+          non_classe: player.is_unranked ? 'oui' : '',
+          joueur_confirme: player.player_confirmed ? 'oui' : '',
+          club_valide: player.club_validated ? 'oui' : '',
           licence: player.license_number ?? '',
           categorie: player.category ?? '',
           telephone: player.phone ?? '',
@@ -204,6 +231,10 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
         last_name: clean(entries.nom || entries.last_name),
         first_name: clean(entries.prenom || entries.first_name),
         ranking: rankingRaw === '' ? null : Number(rankingRaw),
+        player_status: (clean(entries.statut || entries.status || entries.player_status) || 'NvEQ') as PlayerDraft['player_status'],
+        is_unranked: asBool(entries.non_classe || entries.unranked || entries.is_unranked),
+        player_confirmed: asBool(entries.joueur_confirme || entries.confirmed || entries.player_confirmed),
+        club_validated: asBool(entries.club_valide || entries.validated || entries.club_validated),
         license_number: clean(entries.licence || entries.license || entries.license_number),
         category: clean(entries.categorie || entries.category),
         phone: clean(entries.telephone || entries.phone || entries.tel),
@@ -211,7 +242,7 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
         notes: clean(entries.notes || entries.detail || entries.details),
         player_order: order,
       }
-      if (player.last_name || player.first_name || player.ranking !== null || player.license_number || player.category || player.phone || player.email || player.notes) {
+      if (player.last_name || player.first_name || player.ranking !== null || player.is_unranked || player.license_number || player.category || player.phone || player.email || player.notes) {
         importedPlayers.push(player)
       }
     })
@@ -258,6 +289,7 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
             {divClubs.map(club => {
               const rows = playersByClub[club.id] ?? []
+              const warnings = warningsForClub(club.id)
               return (
                 <div key={club.id} className="glass-panel rounded-xl overflow-hidden">
                   <div className="grid grid-cols-[auto_1fr_auto] gap-3 border-b border-cyan/20 px-3 py-2">
@@ -276,7 +308,12 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
                     <div className="text-right">
                       <div className="text-xs text-gray-400 uppercase">Poids total</div>
                       <div className="font-black interclub-blue-text text-xl">{totalForClub(club.id)}</div>
+                      <div className="text-[11px] text-gray-500">{activePlayers(club.id).length}/9 joueurs</div>
                     </div>
+                  </div>
+                  <div className={`flex items-start gap-2 px-3 py-2 text-xs ${warnings.length ? 'bg-amber-500/10 text-amber-100' : 'bg-green-500/10 text-green-200'}`}>
+                    {warnings.length ? <AlertTriangle size={14} className="shrink-0 mt-0.5"/> : <CheckCircle2 size={14} className="shrink-0 mt-0.5"/>}
+                    <span>{warnings.length ? warnings.join(' ') : 'Equipe conforme aux controles de base.'}</span>
                   </div>
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
@@ -285,6 +322,7 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
                           <th className="px-2 py-2 text-left w-[22%]">Nom</th>
                           <th className="px-2 py-2 text-left w-[22%]">Prenom</th>
                           <th className="px-2 py-2 text-right w-24">Rang</th>
+                          <th className="px-2 py-2 text-left w-24">Statut</th>
                           <th className="px-2 py-2 text-left w-28">Licence</th>
                           <th className="px-2 py-2 text-left w-24">Cat.</th>
                           <th className="px-2 py-2 w-12"></th>
@@ -307,6 +345,14 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
                                   className="w-24 bg-black/20 border border-white/10 rounded px-2 py-1 text-right text-white outline-none focus:border-cyan"/>
                               </td>
                               <td className="px-2 py-1.5">
+                                <select value={player.player_status ?? 'NvEQ'} onChange={e => updatePlayer(club.id, player.local_id, 'player_status', e.target.value)}
+                                  className="w-24 bg-black/20 border border-white/10 rounded px-2 py-1 text-white outline-none focus:border-cyan">
+                                  <option value="EQ">EQ</option>
+                                  <option value="NvEQ">NvEQ</option>
+                                  <option value="INVIT">INVIT</option>
+                                </select>
+                              </td>
+                              <td className="px-2 py-1.5">
                                 <input value={player.license_number ?? ''} onChange={e => updatePlayer(club.id, player.local_id, 'license_number', e.target.value)}
                                   className="w-28 bg-black/20 border border-white/10 rounded px-2 py-1 text-white outline-none focus:border-cyan"/>
                               </td>
@@ -321,7 +367,7 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
                               </td>
                             </tr>
                             <tr key={`${player.local_id}-details`} className="bg-black/10">
-                              <td className="px-2 pb-2" colSpan={6}>
+                              <td className="px-2 pb-2" colSpan={7}>
                                 <div className="grid grid-cols-1 md:grid-cols-[160px_220px_1fr] gap-2">
                                   <input value={player.phone ?? ''} onChange={e => updatePlayer(club.id, player.local_id, 'phone', e.target.value)}
                                     className="bg-black/20 border border-white/10 rounded px-2 py-1 text-xs text-white outline-none focus:border-cyan"
@@ -332,6 +378,20 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
                                   <input value={player.notes ?? ''} onChange={e => updatePlayer(club.id, player.local_id, 'notes', e.target.value)}
                                     className="bg-black/20 border border-white/10 rounded px-2 py-1 text-xs text-white outline-none focus:border-cyan"
                                     placeholder="Details / notes joueur"/>
+                                </div>
+                                <div className="mt-2 flex flex-wrap gap-3 text-xs text-gray-300">
+                                  <label className="inline-flex items-center gap-1">
+                                    <input type="checkbox" checked={Boolean(player.is_unranked)} onChange={e => updatePlayer(club.id, player.local_id, 'is_unranked', e.target.checked)}/>
+                                    Non classe
+                                  </label>
+                                  <label className="inline-flex items-center gap-1">
+                                    <input type="checkbox" checked={Boolean(player.player_confirmed)} onChange={e => updatePlayer(club.id, player.local_id, 'player_confirmed', e.target.checked)}/>
+                                    Confirme joueur
+                                  </label>
+                                  <label className="inline-flex items-center gap-1">
+                                    <input type="checkbox" checked={Boolean(player.club_validated)} onChange={e => updatePlayer(club.id, player.local_id, 'club_validated', e.target.checked)}/>
+                                    Valide club
+                                  </label>
                                 </div>
                               </td>
                             </tr>

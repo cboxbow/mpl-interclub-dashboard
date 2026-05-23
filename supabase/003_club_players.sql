@@ -7,6 +7,11 @@ CREATE TABLE IF NOT EXISTS club_players (
   last_name    TEXT    NOT NULL DEFAULT '',
   first_name   TEXT    NOT NULL DEFAULT '',
   ranking      INTEGER,
+  player_status TEXT NOT NULL DEFAULT 'NvEQ'
+    CHECK (player_status IN ('EQ','NvEQ','INVIT')),
+  is_unranked  BOOLEAN NOT NULL DEFAULT false,
+  player_confirmed BOOLEAN NOT NULL DEFAULT false,
+  club_validated BOOLEAN NOT NULL DEFAULT false,
   license_number TEXT,
   category     TEXT,
   phone        TEXT,
@@ -34,6 +39,10 @@ CREATE TRIGGER trg_sync_club_players_updated_at
 ALTER TABLE club_players ENABLE ROW LEVEL SECURITY;
 
 ALTER TABLE club_players ADD COLUMN IF NOT EXISTS license_number TEXT;
+ALTER TABLE club_players ADD COLUMN IF NOT EXISTS player_status TEXT NOT NULL DEFAULT 'NvEQ';
+ALTER TABLE club_players ADD COLUMN IF NOT EXISTS is_unranked BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE club_players ADD COLUMN IF NOT EXISTS player_confirmed BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE club_players ADD COLUMN IF NOT EXISTS club_validated BOOLEAN NOT NULL DEFAULT false;
 ALTER TABLE club_players ADD COLUMN IF NOT EXISTS category TEXT;
 ALTER TABLE club_players ADD COLUMN IF NOT EXISTS phone TEXT;
 ALTER TABLE club_players ADD COLUMN IF NOT EXISTS email TEXT;

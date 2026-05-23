@@ -28,6 +28,10 @@ export interface ClubPlayer {
   last_name: string
   first_name: string
   ranking: number | null
+  player_status?: 'EQ' | 'NvEQ' | 'INVIT'
+  is_unranked?: boolean
+  player_confirmed?: boolean
+  club_validated?: boolean
   license_number?: string | null
   category?: string | null
   phone?: string | null

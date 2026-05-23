@@ -2,11 +2,12 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { Calendar, Settings, BarChart3 } from 'lucide-react'
+import { Calendar, Settings, BarChart3, BookOpen } from 'lucide-react'
 
 const links = [
   { href: '/',          label: 'Dashboard',  icon: BarChart3  },
   { href: '/calendar',  label: 'Calendrier', icon: Calendar   },
+  { href: '/rules',     label: 'Reglement',  icon: BookOpen   },
   { href: '/admin',     label: 'Admin',      icon: Settings   },
 ]
 

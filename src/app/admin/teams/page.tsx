@@ -10,7 +10,7 @@ export default async function TeamsPage() {
     sb.from('clubs').select('*').order('id'),
     sb.from('divisions').select('*').order('display_order'),
     sb.from('club_players').select('*').order('player_order'),
-    sb.from('club_players').select('license_number,category,phone,email,notes').limit(1),
+    sb.from('club_players').select('player_status,is_unranked,player_confirmed,club_validated,license_number,category,phone,email,notes').limit(1),
   ])
 
   return (

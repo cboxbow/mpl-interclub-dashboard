@@ -1,6 +1,6 @@
 'use client'
 
-import { Fragment, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { AlertTriangle, CheckCircle2, Download, FileSpreadsheet, Plus, Save, Trash2, Upload } from 'lucide-react'
 import type { Club, ClubPlayer, Division } from '@/lib/types'
 import { getSupabase } from '@/lib/supabase'
@@ -315,90 +315,94 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
                     {warnings.length ? <AlertTriangle size={14} className="shrink-0 mt-0.5"/> : <CheckCircle2 size={14} className="shrink-0 mt-0.5"/>}
                     <span>{warnings.length ? warnings.join(' ') : 'Equipe conforme aux controles de base.'}</span>
                   </div>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead className="bg-cyan/10 text-xs uppercase text-cyan">
-                        <tr>
-                          <th className="px-2 py-2 text-left w-[22%]">Nom</th>
-                          <th className="px-2 py-2 text-left w-[22%]">Prenom</th>
-                          <th className="px-2 py-2 text-right w-24">Rang</th>
-                          <th className="px-2 py-2 text-left w-24">Statut</th>
-                          <th className="px-2 py-2 text-left w-28">Licence</th>
-                          <th className="px-2 py-2 text-left w-24">Cat.</th>
-                          <th className="px-2 py-2 w-12"></th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-white/5">
-                        {rows.map(player => (
-                          <Fragment key={player.local_id}>
-                            <tr key={player.local_id}>
-                              <td className="px-2 py-1.5">
-                                <input value={player.last_name} onChange={e => updatePlayer(club.id, player.local_id, 'last_name', e.target.value)}
-                                  className="w-full bg-black/20 border border-white/10 rounded px-2 py-1 text-white outline-none focus:border-cyan"/>
-                              </td>
-                              <td className="px-2 py-1.5">
-                                <input value={player.first_name} onChange={e => updatePlayer(club.id, player.local_id, 'first_name', e.target.value)}
-                                  className="w-full bg-black/20 border border-white/10 rounded px-2 py-1 text-white outline-none focus:border-cyan"/>
-                              </td>
-                              <td className="px-2 py-1.5">
-                                <input type="number" value={player.ranking ?? ''} onChange={e => updatePlayer(club.id, player.local_id, 'ranking', e.target.value)}
-                                  className="w-24 bg-black/20 border border-white/10 rounded px-2 py-1 text-right text-white outline-none focus:border-cyan"/>
-                              </td>
-                              <td className="px-2 py-1.5">
-                                <select value={player.player_status ?? 'NvEQ'} onChange={e => updatePlayer(club.id, player.local_id, 'player_status', e.target.value)}
-                                  className="w-24 bg-black/20 border border-white/10 rounded px-2 py-1 text-white outline-none focus:border-cyan">
-                                  <option value="EQ">EQ</option>
-                                  <option value="NvEQ">NvEQ</option>
-                                  <option value="INVIT">INVIT</option>
-                                </select>
-                              </td>
-                              <td className="px-2 py-1.5">
-                                <input value={player.license_number ?? ''} onChange={e => updatePlayer(club.id, player.local_id, 'license_number', e.target.value)}
-                                  className="w-28 bg-black/20 border border-white/10 rounded px-2 py-1 text-white outline-none focus:border-cyan"/>
-                              </td>
-                              <td className="px-2 py-1.5">
-                                <input value={player.category ?? ''} onChange={e => updatePlayer(club.id, player.local_id, 'category', e.target.value)}
-                                  className="w-24 bg-black/20 border border-white/10 rounded px-2 py-1 text-white outline-none focus:border-cyan"/>
-                              </td>
-                              <td className="px-2 py-1.5 text-right">
-                                <button onClick={() => removePlayer(club.id, player.local_id)} className="p-1.5 rounded text-gray-500 hover:bg-red-500/10 hover:text-red-300">
-                                  <Trash2 size={14}/>
-                                </button>
-                              </td>
-                            </tr>
-                            <tr key={`${player.local_id}-details`} className="bg-black/10">
-                              <td className="px-2 pb-2" colSpan={7}>
-                                <div className="grid grid-cols-1 md:grid-cols-[160px_220px_1fr] gap-2">
-                                  <input value={player.phone ?? ''} onChange={e => updatePlayer(club.id, player.local_id, 'phone', e.target.value)}
-                                    className="bg-black/20 border border-white/10 rounded px-2 py-1 text-xs text-white outline-none focus:border-cyan"
-                                    placeholder="Telephone"/>
-                                  <input value={player.email ?? ''} onChange={e => updatePlayer(club.id, player.local_id, 'email', e.target.value)}
-                                    className="bg-black/20 border border-white/10 rounded px-2 py-1 text-xs text-white outline-none focus:border-cyan"
-                                    placeholder="Email"/>
-                                  <input value={player.notes ?? ''} onChange={e => updatePlayer(club.id, player.local_id, 'notes', e.target.value)}
-                                    className="bg-black/20 border border-white/10 rounded px-2 py-1 text-xs text-white outline-none focus:border-cyan"
-                                    placeholder="Details / notes joueur"/>
-                                </div>
-                                <div className="mt-2 flex flex-wrap gap-3 text-xs text-gray-300">
-                                  <label className="inline-flex items-center gap-1">
-                                    <input type="checkbox" checked={Boolean(player.is_unranked)} onChange={e => updatePlayer(club.id, player.local_id, 'is_unranked', e.target.checked)}/>
-                                    Non classe
-                                  </label>
-                                  <label className="inline-flex items-center gap-1">
-                                    <input type="checkbox" checked={Boolean(player.player_confirmed)} onChange={e => updatePlayer(club.id, player.local_id, 'player_confirmed', e.target.checked)}/>
-                                    Confirme joueur
-                                  </label>
-                                  <label className="inline-flex items-center gap-1">
-                                    <input type="checkbox" checked={Boolean(player.club_validated)} onChange={e => updatePlayer(club.id, player.local_id, 'club_validated', e.target.checked)}/>
-                                    Valide club
-                                  </label>
-                                </div>
-                              </td>
-                            </tr>
-                          </Fragment>
-                        ))}
-                      </tbody>
-                    </table>
+                  <div className="space-y-3 p-3">
+                    {rows.map((player, index) => (
+                      <div key={player.local_id} className="rounded-lg border border-white/10 bg-black/20 p-3">
+                        <div className="mb-3 flex items-center justify-between gap-3">
+                          <div className="text-xs font-black uppercase tracking-[0.16em] text-cyan">Joueur {index + 1}</div>
+                          <button
+                            onClick={() => removePlayer(club.id, player.local_id)}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-white/10 text-gray-400 hover:border-red-400/40 hover:bg-red-500/10 hover:text-red-300"
+                            aria-label="Supprimer le joueur"
+                          >
+                            <Trash2 size={15}/>
+                          </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-[1fr_1fr_110px_120px]">
+                          <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">
+                            Nom
+                            <input value={player.last_name} onChange={e => updatePlayer(club.id, player.local_id, 'last_name', e.target.value)}
+                              className="mt-1 h-9 w-full rounded-md border border-white/10 bg-black/25 px-3 text-sm text-white outline-none focus:border-cyan"/>
+                          </label>
+                          <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">
+                            Prenom
+                            <input value={player.first_name} onChange={e => updatePlayer(club.id, player.local_id, 'first_name', e.target.value)}
+                              className="mt-1 h-9 w-full rounded-md border border-white/10 bg-black/25 px-3 text-sm text-white outline-none focus:border-cyan"/>
+                          </label>
+                          <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">
+                            Rang
+                            <input type="number" value={player.ranking ?? ''} onChange={e => updatePlayer(club.id, player.local_id, 'ranking', e.target.value)}
+                              className="mt-1 h-9 w-full rounded-md border border-white/10 bg-black/25 px-3 text-right text-sm text-white outline-none focus:border-cyan"/>
+                          </label>
+                          <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">
+                            Statut
+                            <select value={player.player_status ?? 'NvEQ'} onChange={e => updatePlayer(club.id, player.local_id, 'player_status', e.target.value)}
+                              className="mt-1 h-9 w-full rounded-md border border-white/10 bg-black/25 px-3 text-sm text-white outline-none focus:border-cyan">
+                              <option value="EQ">EQ</option>
+                              <option value="NvEQ">NvEQ</option>
+                              <option value="INVIT">INVIT</option>
+                            </select>
+                          </label>
+                        </div>
+
+                        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-[150px_130px_1fr]">
+                          <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">
+                            Licence
+                            <input value={player.license_number ?? ''} onChange={e => updatePlayer(club.id, player.local_id, 'license_number', e.target.value)}
+                              className="mt-1 h-9 w-full rounded-md border border-white/10 bg-black/25 px-3 text-sm text-white outline-none focus:border-cyan"/>
+                          </label>
+                          <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">
+                            Cat.
+                            <input value={player.category ?? ''} onChange={e => updatePlayer(club.id, player.local_id, 'category', e.target.value)}
+                              className="mt-1 h-9 w-full rounded-md border border-white/10 bg-black/25 px-3 text-sm text-white outline-none focus:border-cyan"/>
+                          </label>
+                          <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">
+                            Details / notes joueur
+                            <input value={player.notes ?? ''} onChange={e => updatePlayer(club.id, player.local_id, 'notes', e.target.value)}
+                              className="mt-1 h-9 w-full rounded-md border border-white/10 bg-black/25 px-3 text-sm text-white outline-none focus:border-cyan"/>
+                          </label>
+                        </div>
+
+                        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                          <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">
+                            Telephone
+                            <input value={player.phone ?? ''} onChange={e => updatePlayer(club.id, player.local_id, 'phone', e.target.value)}
+                              className="mt-1 h-9 w-full rounded-md border border-white/10 bg-black/25 px-3 text-sm text-white outline-none focus:border-cyan"/>
+                          </label>
+                          <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">
+                            Email
+                            <input value={player.email ?? ''} onChange={e => updatePlayer(club.id, player.local_id, 'email', e.target.value)}
+                              className="mt-1 h-9 w-full rounded-md border border-white/10 bg-black/25 px-3 text-sm text-white outline-none focus:border-cyan"/>
+                          </label>
+                        </div>
+
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <label className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs ${player.is_unranked ? 'border-cyan/50 bg-cyan/10 text-cyan' : 'border-white/10 text-gray-300'}`}>
+                            <input type="checkbox" checked={Boolean(player.is_unranked)} onChange={e => updatePlayer(club.id, player.local_id, 'is_unranked', e.target.checked)} className="accent-cyan"/>
+                            Non classe
+                          </label>
+                          <label className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs ${player.player_confirmed ? 'border-cyan/50 bg-cyan/10 text-cyan' : 'border-white/10 text-gray-300'}`}>
+                            <input type="checkbox" checked={Boolean(player.player_confirmed)} onChange={e => updatePlayer(club.id, player.local_id, 'player_confirmed', e.target.checked)} className="accent-cyan"/>
+                            Confirme joueur
+                          </label>
+                          <label className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs ${player.club_validated ? 'border-cyan/50 bg-cyan/10 text-cyan' : 'border-white/10 text-gray-300'}`}>
+                            <input type="checkbox" checked={Boolean(player.club_validated)} onChange={e => updatePlayer(club.id, player.local_id, 'club_validated', e.target.checked)} className="accent-cyan"/>
+                            Valide club
+                          </label>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                   <div className="flex items-center justify-between gap-2 border-t border-white/10 px-3 py-2">
                     <div className="flex flex-wrap gap-2">

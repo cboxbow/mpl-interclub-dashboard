@@ -1,9 +1,10 @@
 'use client'
 
-import { useMemo, useRef, useState } from 'react'
+import { Fragment, useMemo, useRef, useState } from 'react'
 import { Download, FileSpreadsheet, Plus, Save, Trash2, Upload } from 'lucide-react'
 import type { Club, ClubPlayer, Division } from '@/lib/types'
 import { getSupabase } from '@/lib/supabase'
+import Image from 'next/image'
 
 type PlayerDraft = ClubPlayer & { local_id: string }
 
@@ -19,6 +20,11 @@ const blankPlayer = (clubId: number, order: number): PlayerDraft => ({
   last_name: '',
   first_name: '',
   ranking: null,
+  license_number: '',
+  category: '',
+  phone: '',
+  email: '',
+  notes: '',
   player_order: order,
 })
 
@@ -107,9 +113,14 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
         last_name: player.last_name.trim(),
         first_name: player.first_name.trim(),
         ranking: player.ranking === null || Number.isNaN(Number(player.ranking)) ? null : Number(player.ranking),
+        license_number: clean(player.license_number) || null,
+        category: clean(player.category) || null,
+        phone: clean(player.phone) || null,
+        email: clean(player.email) || null,
+        notes: clean(player.notes) || null,
         player_order: index,
       }))
-      .filter(player => player.last_name || player.first_name || player.ranking !== null)
+      .filter(player => player.last_name || player.first_name || player.ranking !== null || player.license_number || player.category || player.phone || player.email || player.notes)
 
     const sb = getSupabase()
     const { error: deleteError } = await sb.from('club_players').delete().eq('club_id', clubId)
@@ -150,6 +161,11 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
           nom: player.last_name,
           prenom: player.first_name,
           rang: player.ranking,
+          licence: player.license_number ?? '',
+          categorie: player.category ?? '',
+          telephone: player.phone ?? '',
+          email: player.email ?? '',
+          notes: player.notes ?? '',
         })
       })
     })
@@ -201,6 +217,11 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
         last_name: clean(entries.nom || entries.last_name),
         first_name: clean(entries.prenom || entries.first_name),
         ranking: rankingRaw === '' ? null : Number(rankingRaw),
+        license_number: clean(entries.licence || entries.license || entries.license_number),
+        category: clean(entries.categorie || entries.category),
+        phone: clean(entries.telephone || entries.phone || entries.tel),
+        email: clean(entries.email || entries.mail),
+        notes: clean(entries.notes || entries.detail || entries.details),
         player_order: order,
       }
       if (order === 0) next[club.id] = []
@@ -255,10 +276,18 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
               const rows = playersByClub[club.id] ?? []
               return (
                 <div key={club.id} className="glass-panel rounded-xl overflow-hidden">
-                  <div className="grid grid-cols-[1fr_auto] gap-3 border-b border-cyan/20 px-3 py-2">
+                  <div className="grid grid-cols-[auto_1fr_auto] gap-3 border-b border-cyan/20 px-3 py-2">
+                    <div className="h-14 w-16 rounded bg-black/30 border border-white/10 flex items-center justify-center overflow-hidden">
+                      {club.logo_url ? (
+                        <Image src={club.logo_url} alt={club.name} width={64} height={56} className="max-h-12 w-auto object-contain"/>
+                      ) : (
+                        <span className="text-[10px] text-gray-600">Logo</span>
+                      )}
+                    </div>
                     <div>
                       <div className="text-xs text-gray-400 uppercase">Club</div>
                       <div className="font-black text-white">{club.name}</div>
+                      <div className="text-xs text-gray-500">{divisionById.get(club.division_id)?.name}</div>
                     </div>
                     <div className="text-right">
                       <div className="text-xs text-gray-400 uppercase">Poids total</div>
@@ -269,33 +298,60 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
                     <table className="w-full text-sm">
                       <thead className="bg-cyan/10 text-xs uppercase text-cyan">
                         <tr>
-                          <th className="px-2 py-2 text-left w-[30%]">Nom</th>
-                          <th className="px-2 py-2 text-left w-[30%]">Prenom</th>
+                          <th className="px-2 py-2 text-left w-[22%]">Nom</th>
+                          <th className="px-2 py-2 text-left w-[22%]">Prenom</th>
                           <th className="px-2 py-2 text-right w-24">Rang</th>
+                          <th className="px-2 py-2 text-left w-28">Licence</th>
+                          <th className="px-2 py-2 text-left w-24">Cat.</th>
                           <th className="px-2 py-2 w-12"></th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/5">
                         {rows.map(player => (
-                          <tr key={player.local_id}>
-                            <td className="px-2 py-1.5">
-                              <input value={player.last_name} onChange={e => updatePlayer(club.id, player.local_id, 'last_name', e.target.value)}
-                                className="w-full bg-black/20 border border-white/10 rounded px-2 py-1 text-white outline-none focus:border-cyan"/>
-                            </td>
-                            <td className="px-2 py-1.5">
-                              <input value={player.first_name} onChange={e => updatePlayer(club.id, player.local_id, 'first_name', e.target.value)}
-                                className="w-full bg-black/20 border border-white/10 rounded px-2 py-1 text-white outline-none focus:border-cyan"/>
-                            </td>
-                            <td className="px-2 py-1.5">
-                              <input type="number" value={player.ranking ?? ''} onChange={e => updatePlayer(club.id, player.local_id, 'ranking', e.target.value)}
-                                className="w-24 bg-black/20 border border-white/10 rounded px-2 py-1 text-right text-white outline-none focus:border-cyan"/>
-                            </td>
-                            <td className="px-2 py-1.5 text-right">
-                              <button onClick={() => removePlayer(club.id, player.local_id)} className="p-1.5 rounded text-gray-500 hover:bg-red-500/10 hover:text-red-300">
-                                <Trash2 size={14}/>
-                              </button>
-                            </td>
-                          </tr>
+                          <Fragment key={player.local_id}>
+                            <tr key={player.local_id}>
+                              <td className="px-2 py-1.5">
+                                <input value={player.last_name} onChange={e => updatePlayer(club.id, player.local_id, 'last_name', e.target.value)}
+                                  className="w-full bg-black/20 border border-white/10 rounded px-2 py-1 text-white outline-none focus:border-cyan"/>
+                              </td>
+                              <td className="px-2 py-1.5">
+                                <input value={player.first_name} onChange={e => updatePlayer(club.id, player.local_id, 'first_name', e.target.value)}
+                                  className="w-full bg-black/20 border border-white/10 rounded px-2 py-1 text-white outline-none focus:border-cyan"/>
+                              </td>
+                              <td className="px-2 py-1.5">
+                                <input type="number" value={player.ranking ?? ''} onChange={e => updatePlayer(club.id, player.local_id, 'ranking', e.target.value)}
+                                  className="w-24 bg-black/20 border border-white/10 rounded px-2 py-1 text-right text-white outline-none focus:border-cyan"/>
+                              </td>
+                              <td className="px-2 py-1.5">
+                                <input value={player.license_number ?? ''} onChange={e => updatePlayer(club.id, player.local_id, 'license_number', e.target.value)}
+                                  className="w-28 bg-black/20 border border-white/10 rounded px-2 py-1 text-white outline-none focus:border-cyan"/>
+                              </td>
+                              <td className="px-2 py-1.5">
+                                <input value={player.category ?? ''} onChange={e => updatePlayer(club.id, player.local_id, 'category', e.target.value)}
+                                  className="w-24 bg-black/20 border border-white/10 rounded px-2 py-1 text-white outline-none focus:border-cyan"/>
+                              </td>
+                              <td className="px-2 py-1.5 text-right">
+                                <button onClick={() => removePlayer(club.id, player.local_id)} className="p-1.5 rounded text-gray-500 hover:bg-red-500/10 hover:text-red-300">
+                                  <Trash2 size={14}/>
+                                </button>
+                              </td>
+                            </tr>
+                            <tr key={`${player.local_id}-details`} className="bg-black/10">
+                              <td className="px-2 pb-2" colSpan={6}>
+                                <div className="grid grid-cols-1 md:grid-cols-[160px_220px_1fr] gap-2">
+                                  <input value={player.phone ?? ''} onChange={e => updatePlayer(club.id, player.local_id, 'phone', e.target.value)}
+                                    className="bg-black/20 border border-white/10 rounded px-2 py-1 text-xs text-white outline-none focus:border-cyan"
+                                    placeholder="Telephone"/>
+                                  <input value={player.email ?? ''} onChange={e => updatePlayer(club.id, player.local_id, 'email', e.target.value)}
+                                    className="bg-black/20 border border-white/10 rounded px-2 py-1 text-xs text-white outline-none focus:border-cyan"
+                                    placeholder="Email"/>
+                                  <input value={player.notes ?? ''} onChange={e => updatePlayer(club.id, player.local_id, 'notes', e.target.value)}
+                                    className="bg-black/20 border border-white/10 rounded px-2 py-1 text-xs text-white outline-none focus:border-cyan"
+                                    placeholder="Details / notes joueur"/>
+                                </div>
+                              </td>
+                            </tr>
+                          </Fragment>
                         ))}
                       </tbody>
                     </table>

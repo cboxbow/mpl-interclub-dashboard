@@ -1,5 +1,6 @@
-import { getSupabaseAdmin } from '@/lib/supabase'
 import ClubEditor from '@/components/ClubEditor'
+import { CLUB_LOGOS } from '@/lib/clubLogos'
+import { getSupabaseAdmin } from '@/lib/supabase'
 import type { Club, Division } from '@/lib/types'
 
 export const revalidate = 0
@@ -12,14 +13,15 @@ export default async function ClubsPage() {
   ])
 
   return (
-    <div className="space-y-6 max-w-3xl">
-      <div>
-        <h1 className="text-2xl font-bold">Gestion des clubs</h1>
-        <p className="text-sm text-gray-400 mt-1">
-          Modifiez les noms des clubs par division. Les changements sont appliqués immédiatement.
+    <div className="space-y-6 max-w-5xl">
+      <div className="glass-panel rounded-2xl p-6">
+        <div className="text-xs font-bold uppercase tracking-[0.28em] interclub-blue-text mb-2">Admin clubs</div>
+        <h1 className="interclub-title text-3xl sm:text-5xl font-black uppercase leading-none">Liste des clubs</h1>
+        <p className="text-sm text-gray-400 mt-3">
+          Modifiez les noms, abreviations et logos des clubs par division.
         </p>
       </div>
-      <ClubEditor clubs={(clubs ?? []) as Club[]} divisions={(divisions ?? []) as Division[]}/>
+      <ClubEditor clubs={(clubs ?? []) as Club[]} divisions={(divisions ?? []) as Division[]} logos={CLUB_LOGOS}/>
     </div>
   )
 }

@@ -3,18 +3,20 @@ import { useState } from 'react'
 import type { Club, Division } from '@/lib/types'
 import { getSupabase } from '@/lib/supabase'
 import { Pencil, Check, X } from 'lucide-react'
+import Image from 'next/image'
 
-interface Props { clubs: Club[]; divisions: Division[] }
+interface Props { clubs: Club[]; divisions: Division[]; logos?: string[] }
 
-export default function ClubEditor({ clubs: initial, divisions }: Props) {
+export default function ClubEditor({ clubs: initial, divisions, logos = [] }: Props) {
   const [clubs, setClubs] = useState(initial)
   const [editing, setEditing] = useState<number | null>(null)
   const [editName, setEditName] = useState('')
   const [editShort, setEditShort] = useState('')
+  const [editLogo, setEditLogo] = useState('')
   const [saving, setSaving] = useState(false)
 
   const startEdit = (c: Club) => {
-    setEditing(c.id); setEditName(c.name); setEditShort(c.short_name)
+    setEditing(c.id); setEditName(c.name); setEditShort(c.short_name); setEditLogo(c.logo_url ?? '')
   }
   const cancel = () => setEditing(null)
 
@@ -22,10 +24,10 @@ export default function ClubEditor({ clubs: initial, divisions }: Props) {
     setSaving(true)
     const sb = getSupabase()
     const { error } = await sb.from('clubs')
-      .update({ name: editName, short_name: editShort })
+      .update({ name: editName, short_name: editShort, logo_url: editLogo || null })
       .eq('id', clubId)
     if (!error) {
-      setClubs(prev => prev.map(c => c.id === clubId ? { ...c, name: editName, short_name: editShort } : c))
+      setClubs(prev => prev.map(c => c.id === clubId ? { ...c, name: editName, short_name: editShort, logo_url: editLogo || undefined } : c))
       setEditing(null)
     }
     setSaving(false)
@@ -47,6 +49,13 @@ export default function ClubEditor({ clubs: initial, divisions }: Props) {
           <div className="divide-y divide-white/5">
             {dc.map(club => (
               <div key={club.id} className="px-4 py-2 flex items-center gap-3">
+                <div className="h-10 w-12 shrink-0 rounded bg-black/30 border border-white/10 flex items-center justify-center overflow-hidden">
+                  {club.logo_url ? (
+                    <Image src={club.logo_url} alt={club.name} width={48} height={40} className="max-h-9 w-auto object-contain"/>
+                  ) : (
+                    <span className="text-[10px] text-gray-600">Logo</span>
+                  )}
+                </div>
                 {editing === club.id ? (
                   <>
                     <input value={editName} onChange={e=>setEditName(e.target.value)}
@@ -57,6 +66,13 @@ export default function ClubEditor({ clubs: initial, divisions }: Props) {
                       className="w-20 bg-navy border border-cyan/40 rounded px-2 py-1 text-sm text-white focus:outline-none focus:border-cyan"
                       placeholder="Court"
                     />
+                    <select value={editLogo} onChange={e=>setEditLogo(e.target.value)}
+                      className="w-52 bg-navy border border-cyan/40 rounded px-2 py-1 text-sm text-white focus:outline-none focus:border-cyan">
+                      <option value="">Aucun logo</option>
+                      {logos.map(logo => (
+                        <option key={logo} value={logo}>{logo.split('/').pop()}</option>
+                      ))}
+                    </select>
                     <button onClick={() => save(club.id)} disabled={saving}
                       className="p-1.5 rounded bg-cyan text-navy hover:bg-cyan-dark transition disabled:opacity-50">
                       <Check size={14}/>

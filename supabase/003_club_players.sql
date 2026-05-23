@@ -7,6 +7,11 @@ CREATE TABLE IF NOT EXISTS club_players (
   last_name    TEXT    NOT NULL DEFAULT '',
   first_name   TEXT    NOT NULL DEFAULT '',
   ranking      INTEGER,
+  license_number TEXT,
+  category     TEXT,
+  phone        TEXT,
+  email        TEXT,
+  notes        TEXT,
   player_order INTEGER NOT NULL DEFAULT 0,
   created_at   TIMESTAMPTZ DEFAULT NOW(),
   updated_at   TIMESTAMPTZ DEFAULT NOW()
@@ -27,6 +32,12 @@ CREATE TRIGGER trg_sync_club_players_updated_at
   FOR EACH ROW EXECUTE FUNCTION sync_club_players_updated_at();
 
 ALTER TABLE club_players ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE club_players ADD COLUMN IF NOT EXISTS license_number TEXT;
+ALTER TABLE club_players ADD COLUMN IF NOT EXISTS category TEXT;
+ALTER TABLE club_players ADD COLUMN IF NOT EXISTS phone TEXT;
+ALTER TABLE club_players ADD COLUMN IF NOT EXISTS email TEXT;
+ALTER TABLE club_players ADD COLUMN IF NOT EXISTS notes TEXT;
 
 CREATE POLICY "public_read_club_players" ON club_players
   FOR SELECT USING (true);

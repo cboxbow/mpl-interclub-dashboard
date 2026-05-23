@@ -24,6 +24,11 @@ export interface ClubPlayer {
   last_name: string
   first_name: string
   ranking: number | null
+  license_number?: string | null
+  category?: string | null
+  phone?: string | null
+  email?: string | null
+  notes?: string | null
   player_order?: number
   created_at?: string
   updated_at?: string

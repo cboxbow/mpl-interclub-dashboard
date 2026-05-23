@@ -2,6 +2,9 @@ export interface ClubCatalogItem {
   name: string
   shortName: string
   logoUrl: string
+  location: string
+  zone: string
+  courts: number
   venueDetails: string
   contactName: string
   contactPhone: string
@@ -9,24 +12,24 @@ export interface ClubCatalogItem {
 }
 
 export const CLUB_CATALOG: ClubCatalogItem[] = [
-  { name: 'Cana Padel', shortName: 'CANA', logoUrl: '/club-logos/cana-padel.png', venueDetails: 'Cana Padel', contactName: 'A completer', contactPhone: '', contactEmail: '' },
-  { name: 'Club House Tamarin', shortName: 'CHT', logoUrl: '/club-logos/club-house-tamarin.png', venueDetails: 'Club House Tamarin', contactName: 'A completer', contactPhone: '', contactEmail: '' },
-  { name: 'Club Med', shortName: 'CLUB MED', logoUrl: '/club-logos/club-med.png', venueDetails: 'Club Med Mauritius', contactName: 'A completer', contactPhone: '', contactEmail: '' },
-  { name: 'Energia', shortName: 'ENERGIA', logoUrl: '/club-logos/energia.png', venueDetails: 'Energia Sports Club', contactName: 'A completer', contactPhone: '', contactEmail: '' },
-  { name: 'iPadel RM', shortName: 'IPADEL', logoUrl: '/club-logos/ipadel-rm.png', venueDetails: 'RM Club / iPadel', contactName: 'A completer', contactPhone: '', contactEmail: '' },
-  { name: 'Isla Padel', shortName: 'ISLA', logoUrl: '/club-logos/isla-padel-v2.png', venueDetails: 'Isla Padel', contactName: 'A completer', contactPhone: '', contactEmail: '' },
-  { name: 'Labourdonnais', shortName: 'LAB', logoUrl: '/club-logos/labourdonnais-v2.png', venueDetails: 'Labourdonnais Sports Club', contactName: 'A completer', contactPhone: '', contactEmail: '' },
-  { name: 'Mont Choisy', shortName: 'MCHOISY', logoUrl: '/club-logos/mont-choisy.png', venueDetails: 'Mont Choisy', contactName: 'A completer', contactPhone: '', contactEmail: '' },
-  { name: 'Oxygen', shortName: 'OXYGEN', logoUrl: '/club-logos/oxygen.png', venueDetails: 'Oxygen Club', contactName: 'A completer', contactPhone: '', contactEmail: '' },
-  { name: 'RM Grand Baie', shortName: 'RM GB', logoUrl: '/club-logos/rm-grand-baie-v2.png', venueDetails: 'RM Grand Baie', contactName: 'A completer', contactPhone: '', contactEmail: '' },
-  { name: 'RM Tamarin', shortName: 'RM TAM', logoUrl: '/club-logos/rm-tamarin.png', venueDetails: 'RM Tamarin', contactName: 'A completer', contactPhone: '', contactEmail: '' },
-  { name: 'RN1 Grand Baie', shortName: 'RN1 GB', logoUrl: '/club-logos/rn1-grand-baie.png', venueDetails: 'RN1 Grand Baie', contactName: 'A completer', contactPhone: '', contactEmail: '' },
-  { name: 'SPARC', shortName: 'SPARC', logoUrl: '/club-logos/sparc.png', venueDetails: 'SPARC Sports Club', contactName: 'A completer', contactPhone: '', contactEmail: '' },
-  { name: 'Studio RM', shortName: 'STUDIO RM', logoUrl: '/club-logos/studio-rm.png', venueDetails: 'Studio RM', contactName: 'A completer', contactPhone: '', contactEmail: '' },
-  { name: 'Synergy', shortName: 'SYNERGY', logoUrl: '/club-logos/synergy-v2.png', venueDetails: 'Synergy Sports Club', contactName: 'A completer', contactPhone: '', contactEmail: '' },
-  { name: 'Terres Brunes', shortName: 'TBRUNES', logoUrl: '/club-logos/terres-brunes.png', venueDetails: 'Terres Brunes', contactName: 'A completer', contactPhone: '', contactEmail: '' },
-  { name: 'Urban Padel', shortName: 'URBAN P', logoUrl: '/club-logos/urban-padel.png', venueDetails: 'Urban Padel', contactName: 'A completer', contactPhone: '', contactEmail: '' },
-  { name: 'Urban Sport', shortName: 'URBAN S', logoUrl: '/club-logos/urban-sport.png', venueDetails: 'Urban Sport', contactName: 'A completer', contactPhone: '', contactEmail: '' },
+  { name: 'Cana Beau Plan', shortName: 'CANA BP', logoUrl: '/club-logos/cana-padel.png', location: 'Beau Plan', zone: 'Nord', courts: 5, venueDetails: 'Lieu: Beau Plan | Zone: Nord | Terrains: 5', contactName: 'Mathieu Vallet', contactPhone: '59792962', contactEmail: '' },
+  { name: 'Club Med Albion', shortName: 'CLUB MED', logoUrl: '/club-logos/club-med.png', location: 'Albion', zone: 'Ouest', courts: 3, venueDetails: 'Lieu: Albion | Zone: Ouest | Terrains: 3', contactName: 'Romain Beltrando', contactPhone: '59365037', contactEmail: '' },
+  { name: 'Urban Sport Grand Baie', shortName: 'US GB', logoUrl: '/club-logos/urban-sport.png', location: 'Grand Baie', zone: 'Nord', courts: 3, venueDetails: 'Lieu: Grand Baie | Zone: Nord | Terrains: 3', contactName: 'Pascal Hoffmann', contactPhone: '52580551', contactEmail: '' },
+  { name: 'Urban Sport Black River', shortName: 'US BR', logoUrl: '/club-logos/urban-sport.png', location: 'Black River', zone: 'Ouest', courts: 4, venueDetails: 'Lieu: Black River | Zone: Ouest | Terrains: 4', contactName: 'Pascal Hoffmann', contactPhone: '52580551', contactEmail: '' },
+  { name: 'SPARC Cascavelle', shortName: 'SPARC', logoUrl: '/club-logos/sparc.png', location: 'Cascavelle', zone: 'Ouest', courts: 4, venueDetails: 'Lieu: Cascavelle | Zone: Ouest | Terrains: 4', contactName: 'Maxime Huyse', contactPhone: '54810753', contactEmail: '' },
+  { name: 'RM Club Tamarin', shortName: 'RM TAM', logoUrl: '/club-logos/rm-tamarin.png', location: 'Tamarin', zone: 'Ouest', courts: 5, venueDetails: 'Lieu: Tamarin | Zone: Ouest | Terrains: 5', contactName: 'Coline Aumard', contactPhone: '55080718', contactEmail: '' },
+  { name: 'I Padel by RM Hennessy', shortName: 'IPADEL H', logoUrl: '/club-logos/ipadel-rm.png', location: 'Hennessy', zone: 'Centre', courts: 4, venueDetails: 'Lieu: Hennessy | Zone: Centre | Terrains: 4', contactName: 'Coline Aumard', contactPhone: '55080718', contactEmail: '' },
+  { name: 'RM Club Forbach', shortName: 'RM FOR', logoUrl: '/club-logos/rm-grand-baie-v2.png', location: 'Grand Baie', zone: 'Nord', courts: 7, venueDetails: 'Lieu: Grand Baie | Zone: Nord | Terrains: 7', contactName: 'Coline Aumard', contactPhone: '55080718', contactEmail: '' },
+  { name: 'Labourdonnais Mapou', shortName: 'LAB MAP', logoUrl: '/club-logos/labourdonnais-v2.png', location: 'Mapou', zone: 'Nord', courts: 3, venueDetails: 'Lieu: Mapou | Zone: Nord | Terrains: 3', contactName: 'Mickael Gosch', contactPhone: '54752121', contactEmail: '' },
+  { name: 'I Padel by RM Port Chambly', shortName: 'IPADEL PC', logoUrl: '/club-logos/ipadel-rm.png', location: 'Port Chambly', zone: 'Centre', courts: 3, venueDetails: 'Lieu: Port Chambly | Zone: Centre | Terrains: 3', contactName: 'Coline Aumard', contactPhone: '55080718', contactEmail: '' },
+  { name: 'Studio by RM Azuri', shortName: 'STUDIO RM', logoUrl: '/club-logos/studio-rm.png', location: 'Azuri', zone: 'Est', courts: 3, venueDetails: 'Lieu: Azuri | Zone: Est | Terrains: 3', contactName: 'Coline Aumard', contactPhone: '55080718', contactEmail: '' },
+  { name: 'Isla Padel Grand Baie', shortName: 'ISLA GB', logoUrl: '/club-logos/isla-padel-v2.png', location: 'Grand Baie', zone: 'Nord', courts: 6, venueDetails: 'Lieu: Grand Baie | Zone: Nord | Terrains: 6', contactName: 'Florian Manson', contactPhone: '57553320', contactEmail: '' },
+  { name: 'Terres Brunes Sports & Leisure', shortName: 'TBRUNES', logoUrl: '/club-logos/terres-brunes.png', location: 'Tamarin', zone: 'Ouest', courts: 3, venueDetails: 'Lieu: Tamarin | Zone: Ouest | Terrains: 3', contactName: 'Marinne Giraud', contactPhone: '54239475', contactEmail: '' },
+  { name: 'Mont Choisy Golf', shortName: 'MCHOISY', logoUrl: '/club-logos/mont-choisy.png', location: 'Mont Choisy', zone: 'Nord', courts: 2, venueDetails: 'Lieu: Mont Choisy | Zone: Nord | Terrains: 2', contactName: 'Sarvish Kinnoo', contactPhone: '57726006', contactEmail: '' },
+  { name: 'Oxygen Moka', shortName: 'OXYGEN', logoUrl: '/club-logos/oxygen.png', location: 'Moka', zone: 'Centre', courts: 2, venueDetails: 'Lieu: Moka | Zone: Centre | Terrains: 2', contactName: 'Matteo Zinno', contactPhone: '57463006', contactEmail: '' },
+  { name: 'Club House Black River', shortName: 'CH BR', logoUrl: '/club-logos/club-house-tamarin.png', location: 'Black River', zone: 'Ouest', courts: 2, venueDetails: 'Lieu: Black River | Zone: Ouest | Terrains: 2', contactName: 'Alexis Lavie', contactPhone: '54941771', contactEmail: '' },
+  { name: 'Energia Pointe aux Canonniers', shortName: 'ENERGIA', logoUrl: '/club-logos/energia.png', location: 'Pointe aux Canonniers', zone: 'Nord', courts: 2, venueDetails: 'Lieu: Pointe aux Canonniers | Zone: Nord | Terrains: 2', contactName: 'Damien Putteea', contactPhone: '59386076', contactEmail: '' },
+  { name: 'Moka Rangers', shortName: 'MOKA R', logoUrl: '', location: 'Moka', zone: 'Centre', courts: 4, venueDetails: 'Lieu: Moka | Zone: Centre | Terrains: 4', contactName: 'Mathias Ritter', contactPhone: '58013256', contactEmail: '' },
 ]
 
 export const CLUB_LOGOS = CLUB_CATALOG.map(club => club.logoUrl)

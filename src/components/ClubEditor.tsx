@@ -92,7 +92,9 @@ export default function ClubEditor({ clubs: initial, divisions, catalog = [] }: 
             <span className="text-xs text-gray-500">{divisionClubs.length} clubs</span>
           </div>
           <div className="divide-y divide-white/5">
-            {divisionClubs.map(club => (
+            {divisionClubs.map(club => {
+              const selectedCatalog = editing === club.id ? catalog.find(item => item.name === editName) : null
+              return (
               <div key={club.id} className="px-4 py-3">
                 {editing === club.id ? (
                   <div className="grid grid-cols-1 gap-3 lg:grid-cols-[180px_1fr_auto] lg:items-start">
@@ -124,6 +126,22 @@ export default function ClubEditor({ clubs: initial, divisions, catalog = [] }: 
                         <input value={editVenue} onChange={event => setEditVenue(event.target.value)}
                           className="mt-1 w-full bg-navy border border-cyan/40 rounded px-2 py-2 text-sm text-white focus:outline-none focus:border-cyan"/>
                       </label>
+                      {selectedCatalog && (
+                        <div className="md:col-span-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                          <div className="rounded-md border border-white/10 bg-black/20 px-3 py-2">
+                            <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Lieu</div>
+                            <div className="mt-1 text-sm font-bold text-white">{selectedCatalog.location}</div>
+                          </div>
+                          <div className="rounded-md border border-white/10 bg-black/20 px-3 py-2">
+                            <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Zone</div>
+                            <div className="mt-1 text-sm font-bold text-white">{selectedCatalog.zone}</div>
+                          </div>
+                          <div className="rounded-md border border-white/10 bg-black/20 px-3 py-2">
+                            <div className="text-[10px] uppercase tracking-[0.14em] text-gray-500">Terrains</div>
+                            <div className="mt-1 text-sm font-bold text-white">{selectedCatalog.courts}</div>
+                          </div>
+                        </div>
+                      )}
                       <label className="text-xs text-gray-400">
                         Contact
                         <input value={editContactName} onChange={event => setEditContactName(event.target.value)}
@@ -176,7 +194,8 @@ export default function ClubEditor({ clubs: initial, divisions, catalog = [] }: 
                   </div>
                 )}
               </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       ))}

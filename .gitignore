@@ -1,0 +1,8 @@
+.env.local
+.env
+.next/
+node_modules/
+out/
+*.log
+.DS_Store
+mpl-interclub-dashboard/

@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { --navy: #010F27; --blue: #00164C; --cyan: #01D0FB; }
+body { @apply bg-gray-950 text-gray-100 font-sans; }
+.scrollbar-hidden::-webkit-scrollbar { display: none; }

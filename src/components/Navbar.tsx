@@ -1,7 +1,8 @@
 'use client'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { Trophy, Calendar, Settings, BarChart3 } from 'lucide-react'
+import { Calendar, Settings, BarChart3 } from 'lucide-react'
 
 const links = [
   { href: '/',          label: 'Dashboard',  icon: BarChart3  },
@@ -12,11 +13,17 @@ const links = [
 export default function Navbar() {
   const path = usePathname()
   return (
-    <nav className="sticky top-0 z-50 bg-navy border-b border-cyan/20 shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 flex items-center gap-6 h-14">
-        <Link href="/" className="flex items-center gap-2 font-bold text-cyan text-lg mr-4 shrink-0">
-          <Trophy size={20} />
-          <span className="hidden sm:block">MPL Interclub 2026</span>
+    <nav className="sticky top-0 z-50 bg-navy/85 border-b border-cyan/30 shadow-[0_10px_35px_rgba(1,208,251,0.12)] backdrop-blur-xl">
+      <div className="max-w-7xl mx-auto px-4 flex items-center gap-4 sm:gap-6 h-16">
+        <Link href="/" className="flex items-center mr-2 sm:mr-4 shrink-0" aria-label="MPL Interclub dashboard">
+          <Image
+            src="/mpl-msra.png"
+            alt="Mauritius Squash Rackets Association et Mauritius Padel League"
+            width={205}
+            height={64}
+            priority
+            className="h-10 sm:h-12 w-auto object-contain"
+          />
         </Link>
         {links.map(({ href, label, icon: Icon }) => (
           <Link

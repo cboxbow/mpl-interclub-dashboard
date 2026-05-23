@@ -3,5 +3,25 @@
 @tailwind utilities;
 
 :root { --navy: #010F27; --blue: #00164C; --cyan: #01D0FB; }
-body { @apply bg-gray-950 text-gray-100 font-sans; }
+body {
+  @apply text-gray-100 font-sans;
+  background:
+    linear-gradient(180deg, rgba(0, 5, 18, 0.62), rgba(0, 9, 28, 0.82)),
+    radial-gradient(circle at 18% 8%, rgba(1, 208, 251, 0.16), transparent 34rem),
+    url('/dot-blue-design-interclub.png') center center / cover fixed no-repeat,
+    #020713;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.42), transparent 42%, rgba(0, 0, 0, 0.2)),
+    rgba(1, 15, 39, 0.18);
+  z-index: -1;
+}
+
+a, button { -webkit-tap-highlight-color: transparent; }
 .scrollbar-hidden::-webkit-scrollbar { display: none; }

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import Navbar from '@/components/Navbar'
+import ScrollToTop from '@/components/ScrollToTop'
 
 export const metadata: Metadata = {
   title: 'MPL Interclub Championship 2026',
@@ -11,6 +12,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fr">
       <body className="min-h-screen site-bg">
+        <ScrollToTop />
         <Navbar />
         <div className="relative border-b border-cyan/15 bg-black/20 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto px-4 py-2 flex flex-col gap-1 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">

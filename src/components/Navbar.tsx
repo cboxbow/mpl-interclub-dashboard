@@ -2,10 +2,11 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { Calendar, Settings, BarChart3, BookOpen } from 'lucide-react'
+import { Calendar, Settings, BarChart3, BookOpen, UsersRound } from 'lucide-react'
 
 const links = [
   { href: '/',          label: 'Dashboard',  icon: BarChart3  },
+  { href: '/teams',     label: 'Equipes',    icon: UsersRound },
   { href: '/calendar',  label: 'Calendrier', icon: Calendar   },
   { href: '/rules',     label: 'Reglement',  icon: BookOpen   },
   { href: '/admin',     label: 'Admin',      icon: Settings   },
@@ -15,8 +16,8 @@ export default function Navbar() {
   const path = usePathname()
   return (
     <nav className="sticky top-0 z-50 bg-navy/85 border-b border-cyan/30 shadow-[0_10px_35px_rgba(1,208,251,0.12)] backdrop-blur-xl">
-      <div className="max-w-7xl mx-auto px-4 flex items-center gap-4 sm:gap-6 h-16">
-        <Link href="/" className="flex items-center mr-2 sm:mr-4 shrink-0" aria-label="MPL Interclub dashboard">
+      <div className="max-w-7xl mx-auto px-3 py-2 flex min-h-16 flex-wrap items-center justify-center gap-2 sm:justify-start sm:gap-4">
+        <Link href="/" className="flex basis-full items-center justify-center sm:basis-auto sm:mr-2 shrink-0" aria-label="MPL Interclub dashboard">
           <Image
             src="/mpl-msra.png"
             alt="Mauritius Squash Rackets Association et Mauritius Padel League"
@@ -30,7 +31,7 @@ export default function Navbar() {
           <Link
             key={href}
             href={href}
-            className={`flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-md transition
+            className={`flex items-center gap-1.5 text-xs sm:text-sm px-2.5 sm:px-3 py-1.5 rounded-md transition
               ${path === href || (href !== '/' && path.startsWith(href))
                 ? 'bg-cyan text-navy font-semibold'
                 : 'text-gray-300 hover:text-cyan hover:bg-white/5'
@@ -40,7 +41,7 @@ export default function Navbar() {
             {label}
           </Link>
         ))}
-        <div className="ml-auto text-xs text-gray-500 hidden md:block">
+        <div className="ml-auto text-xs text-gray-500 hidden lg:block">
           Saison 1 · 3e vendredi/mois
         </div>
       </div>

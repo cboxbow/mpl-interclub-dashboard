@@ -19,7 +19,7 @@ export default async function ClubsPage() {
         <div className="text-xs font-bold uppercase tracking-[0.28em] interclub-blue-text mb-2">Admin clubs</div>
         <h1 className="interclub-title text-3xl sm:text-5xl font-black uppercase leading-none">Liste des clubs</h1>
         <p className="text-sm text-gray-400 mt-3">
-          Choisissez le club officiel: le logo, les terrains et le contact se remplissent automatiquement.
+          Gere les equipes par division. Un meme club officiel peut etre ajoute en D1H, D2H ou dans plusieurs divisions femmes.
         </p>
       </div>
       {detailsCheck.error && (

@@ -1,6 +1,7 @@
 import { getSupabaseAdmin } from '@/lib/supabase'
 import type { Division, Standing, Journee } from '@/lib/types'
 import StandingsTable from '@/components/StandingsTable'
+import Countdown from '@/components/Countdown'
 import Link from 'next/link'
 import { Calendar, ChevronRight, ShieldCheck, TrendingUp, Users } from 'lucide-react'
 
@@ -54,10 +55,8 @@ export default async function DashboardPage() {
               </p>
             </div>
             {nextJournee && (
-              <div className="bg-cyan/10 border border-cyan/30 rounded-xl px-4 py-3 text-center shadow-[0_0_30px_rgba(1,208,251,0.16)]">
-                <div className="text-xs text-gray-300 mb-1">Prochaine journee</div>
-                <div className="font-black interclub-blue-text text-3xl">J{nextJournee.number}</div>
-                <div className="text-sm text-white">{nextJournee.label}</div>
+              <div className="w-full md:w-[320px]">
+                <Countdown date={nextJournee.date} label={`J${nextJournee.number} - ${nextJournee.label}`} />
                 <Link href="/calendar" className="text-xs text-cyan/80 hover:text-cyan mt-2 flex items-center justify-center gap-1">
                   <Calendar size={11}/> Voir le calendrier
                 </Link>

@@ -35,7 +35,7 @@ export default function AdminPage() {
           className="glass-panel rounded-xl p-6 hover:border-cyan/50 hover:bg-cyan/5 transition group">
           <Users size={28} className="text-cyan mb-3 group-hover:scale-110 transition"/>
           <div className="font-bold text-lg mb-1">Gerer les clubs</div>
-          <div className="text-sm text-gray-400">Modifier les noms et abreviations des clubs par division.</div>
+          <div className="text-sm text-gray-400">Ajouter, modifier ou retirer les equipes par division depuis les 18 clubs officiels.</div>
         </Link>
         <Link href="/admin/teams"
           className="glass-panel rounded-xl p-6 hover:border-cyan/50 hover:bg-cyan/5 transition group">

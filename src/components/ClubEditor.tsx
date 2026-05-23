@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import { useState } from 'react'
-import { Check, Pencil, X } from 'lucide-react'
+import { Check, Pencil, Plus, Trash2, X } from 'lucide-react'
 import type { Club, Division } from '@/lib/types'
 import type { ClubCatalogItem } from '@/lib/clubLogos'
 import { getSupabase } from '@/lib/supabase'
@@ -24,6 +24,8 @@ export default function ClubEditor({ clubs: initial, divisions, catalog = [] }: 
   const [editContactPhone, setEditContactPhone] = useState('')
   const [editContactEmail, setEditContactEmail] = useState('')
   const [saving, setSaving] = useState(false)
+  const [addingDivision, setAddingDivision] = useState<number | null>(null)
+  const [addChoice, setAddChoice] = useState('')
   const [message, setMessage] = useState('')
 
   const startEdit = (club: Club) => {
@@ -76,6 +78,49 @@ export default function ClubEditor({ clubs: initial, divisions, catalog = [] }: 
     setSaving(false)
   }
 
+  const addTeam = async (divisionId: number) => {
+    const selected = catalog.find(club => club.name === addChoice)
+    if (!selected) return
+    setSaving(true)
+    setMessage('')
+    const payload = {
+      division_id: divisionId,
+      name: selected.name,
+      short_name: selected.shortName,
+      logo_url: selected.logoUrl || null,
+      venue_details: selected.venueDetails,
+      contact_name: selected.contactName || null,
+      contact_phone: selected.contactPhone || null,
+      contact_email: selected.contactEmail || null,
+    }
+    const sb = getSupabase()
+    const { data, error } = await sb.from('clubs').insert(payload).select('*').single()
+    if (error) {
+      setMessage(`Erreur ajout: ${error.message}`)
+    } else if (data) {
+      setClubs(prev => [...prev, data as Club].sort((a, b) => a.id - b.id))
+      setAddingDivision(null)
+      setAddChoice('')
+      setMessage('Equipe ajoutee dans la division.')
+    }
+    setSaving(false)
+  }
+
+  const deleteTeam = async (club: Club) => {
+    if (!window.confirm(`Supprimer ${club.name} de cette division ?`)) return
+    setSaving(true)
+    setMessage('')
+    const sb = getSupabase()
+    const { error } = await sb.from('clubs').delete().eq('id', club.id)
+    if (error) {
+      setMessage(`Erreur suppression: ${error.message}. Si cette equipe a deja des matchs, retire ou modifie les matchs avant suppression.`)
+    } else {
+      setClubs(prev => prev.filter(item => item.id !== club.id))
+      setMessage('Equipe supprimee de la division.')
+    }
+    setSaving(false)
+  }
+
   const grouped = divisions
     .slice()
     .sort((a, b) => a.display_order - b.display_order)
@@ -90,8 +135,38 @@ export default function ClubEditor({ clubs: initial, divisions, catalog = [] }: 
             <div className="w-2 h-2 rounded-full" style={{ background: `#${div.color}` }}/>
             <h3 className="font-bold text-sm">{div.name}</h3>
             <span className="text-xs text-gray-500">{divisionClubs.length} clubs</span>
+            <button
+              onClick={() => { setAddingDivision(div.id); setAddChoice('') }}
+              className="ml-auto inline-flex items-center gap-1.5 rounded-md border border-cyan/30 px-2 py-1 text-xs text-cyan hover:bg-cyan/10"
+            >
+              <Plus size={13}/> Ajouter
+            </button>
           </div>
           <div className="divide-y divide-white/5">
+            {addingDivision === div.id && (
+              <div className="px-4 py-3 bg-cyan/5">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_auto_auto] sm:items-end">
+                  <label className="text-xs text-gray-400">
+                    Ajouter un club officiel dans cette division
+                    <select value={addChoice} onChange={event => setAddChoice(event.target.value)}
+                      className="mt-1 w-full bg-navy border border-cyan/40 rounded px-2 py-2 text-sm text-white focus:outline-none focus:border-cyan">
+                      <option value="">Choisir un club</option>
+                      {catalog.map(item => (
+                        <option key={item.name} value={item.name}>{item.name}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <button onClick={() => addTeam(div.id)} disabled={!addChoice || saving}
+                    className="rounded-md bg-cyan px-3 py-2 text-xs font-bold text-navy disabled:opacity-50">
+                    Ajouter
+                  </button>
+                  <button onClick={() => setAddingDivision(null)}
+                    className="rounded-md border border-white/10 px-3 py-2 text-xs text-gray-300 hover:bg-white/10">
+                    Annuler
+                  </button>
+                </div>
+              </div>
+            )}
             {divisionClubs.map(club => {
               const selectedCatalog = editing === club.id ? catalog.find(item => item.name === editName) : null
               return (
@@ -187,10 +262,18 @@ export default function ClubEditor({ clubs: initial, divisions, catalog = [] }: 
                         <span>Contact: {club.contact_name || 'A completer'}{club.contact_phone ? ` · ${club.contact_phone}` : ''}{club.contact_email ? ` · ${club.contact_email}` : ''}</span>
                       </div>
                     </div>
-                    <button onClick={() => startEdit(club)}
-                      className="p-1.5 rounded text-gray-500 hover:text-cyan hover:bg-white/5 transition">
-                      <Pencil size={14}/>
-                    </button>
+                    <div className="flex flex-col gap-1">
+                      <button onClick={() => startEdit(club)}
+                        className="p-1.5 rounded text-gray-500 hover:text-cyan hover:bg-white/5 transition"
+                        aria-label="Modifier cette equipe">
+                        <Pencil size={14}/>
+                      </button>
+                      <button onClick={() => deleteTeam(club)}
+                        className="p-1.5 rounded text-gray-500 hover:text-red-300 hover:bg-red-500/10 transition"
+                        aria-label="Supprimer cette equipe de la division">
+                        <Trash2 size={14}/>
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

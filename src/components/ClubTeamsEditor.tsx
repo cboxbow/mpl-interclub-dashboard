@@ -32,6 +32,7 @@ const clean = (value: unknown) => String(value ?? '').trim()
 
 export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Props) {
   const fileRef = useRef<HTMLInputElement | null>(null)
+  const [importClubId, setImportClubId] = useState<number | null>(null)
   const [playersByClub, setPlayersByClub] = useState<Record<number, PlayerDraft[]>>(() => {
     const grouped: Record<number, PlayerDraft[]> = {}
     clubs.forEach(club => {
@@ -51,16 +52,6 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
   const [message, setMessage] = useState('')
 
   const divisionById = useMemo(() => new Map(divisions.map(div => [div.id, div])), [divisions])
-  const clubById = useMemo(() => new Map(clubs.map(club => [club.id, club])), [clubs])
-  const clubLookup = useMemo(() => {
-    const map = new Map<string, Club>()
-    clubs.forEach(club => {
-      map.set(club.name.toLowerCase(), club)
-      map.set(club.short_name.toLowerCase(), club)
-      map.set(String(club.id), club)
-    })
-    return map
-  }, [clubs])
 
   const groupedClubs = useMemo(() => (
     divisions
@@ -148,9 +139,9 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
     setSavingClub(null)
   }
 
-  const exportRows = () => {
+  const exportRows = (clubId?: number) => {
     const rows: Record<string, string | number | null>[] = []
-    clubs.forEach(club => {
+    clubs.filter(club => !clubId || club.id === clubId).forEach(club => {
       const div = divisionById.get(club.division_id)
       ;(playersByClub[club.id] ?? []).forEach(player => {
         if (!player.last_name && !player.first_name && player.ranking === null) return
@@ -172,48 +163,44 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
     return rows
   }
 
-  const exportExcel = async () => {
+  const exportExcel = async (clubId?: number) => {
     const XLSX = await import('xlsx')
+    const club = clubId ? clubs.find(item => item.id === clubId) : null
     const wb = XLSX.utils.book_new()
-    const ws = XLSX.utils.json_to_sheet(exportRows())
+    const ws = XLSX.utils.json_to_sheet(exportRows(clubId))
     XLSX.utils.book_append_sheet(wb, ws, 'Equipes')
-    XLSX.writeFile(wb, 'interclub-2026-equipes.xlsx')
+    XLSX.writeFile(wb, club ? `interclub-2026-${club.short_name}-joueurs.xlsx` : 'interclub-2026-equipes.xlsx')
   }
 
-  const exportCsv = async () => {
+  const exportCsv = async (clubId?: number) => {
     const XLSX = await import('xlsx')
-    const ws = XLSX.utils.json_to_sheet(exportRows())
+    const club = clubId ? clubs.find(item => item.id === clubId) : null
+    const ws = XLSX.utils.json_to_sheet(exportRows(clubId))
     const csv = XLSX.utils.sheet_to_csv(ws)
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = 'interclub-2026-equipes.csv'
+    link.download = club ? `interclub-2026-${club.short_name}-joueurs.csv` : 'interclub-2026-equipes.csv'
     link.click()
     URL.revokeObjectURL(url)
   }
 
-  const importFile = async (file: File) => {
+  const importFile = async (file: File, clubId: number) => {
     setMessage('')
     const XLSX = await import('xlsx')
     const buffer = await file.arrayBuffer()
     const wb = XLSX.read(buffer, { type: 'array' })
     const ws = wb.Sheets[wb.SheetNames[0]]
     const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(ws, { defval: '' })
-    const next: Record<number, PlayerDraft[]> = { ...playersByClub }
-    const importedCounts = new Map<number, number>()
+    const importedPlayers: PlayerDraft[] = []
 
-    rows.forEach(row => {
+    rows.forEach((row, order) => {
       const entries = Object.fromEntries(Object.entries(row).map(([key, value]) => [key.toLowerCase().trim(), value]))
-      const clubKey = clean(entries.club_id || entries.club || entries.equipe || entries.club_name).toLowerCase()
-      const club = clubLookup.get(clubKey)
-      if (!club) return
-
-      const order = importedCounts.get(club.id) ?? 0
       const rankingRaw = clean(entries.rang || entries.ranking || entries.classement)
       const player: PlayerDraft = {
-        local_id: `import-${club.id}-${order}-${Math.random().toString(36).slice(2)}`,
-        club_id: club.id,
+        local_id: `import-${clubId}-${order}-${Math.random().toString(36).slice(2)}`,
+        club_id: clubId,
         last_name: clean(entries.nom || entries.last_name),
         first_name: clean(entries.prenom || entries.first_name),
         ranking: rankingRaw === '' ? null : Number(rankingRaw),
@@ -224,14 +211,19 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
         notes: clean(entries.notes || entries.detail || entries.details),
         player_order: order,
       }
-      if (order === 0) next[club.id] = []
-      next[club.id] = [...(next[club.id] ?? []), player]
-      importedCounts.set(club.id, order + 1)
+      if (player.last_name || player.first_name || player.ranking !== null || player.license_number || player.category || player.phone || player.email || player.notes) {
+        importedPlayers.push(player)
+      }
     })
 
-    setPlayersByClub(next)
-    setMessage(`${Array.from(importedCounts.values()).reduce((sum, count) => sum + count, 0)} joueurs importes. Verifie puis sauvegarde les clubs concernes.`)
+    setPlayersByClub(prev => ({
+      ...prev,
+      [clubId]: importedPlayers.length ? importedPlayers : Array.from({ length: 8 }, (_, index) => blankPlayer(clubId, index)),
+    }))
+    const club = clubs.find(item => item.id === clubId)
+    setMessage(`${importedPlayers.length} joueurs importes pour ${club?.name ?? 'ce club'}. Verifie puis sauvegarde ce club.`)
     if (fileRef.current) fileRef.current.value = ''
+    setImportClubId(null)
   }
 
   return (
@@ -250,18 +242,10 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
             className="hidden"
             onChange={event => {
               const file = event.target.files?.[0]
-              if (file) importFile(file)
+              if (file && importClubId) importFile(file, importClubId)
             }}
           />
-          <button onClick={() => fileRef.current?.click()} className="inline-flex items-center gap-2 rounded-md border border-cyan/30 px-3 py-2 text-sm text-cyan hover:bg-cyan/10">
-            <Upload size={15}/> Import Excel/CSV
-          </button>
-          <button onClick={exportExcel} className="inline-flex items-center gap-2 rounded-md border border-white/15 px-3 py-2 text-sm text-gray-200 hover:bg-white/10">
-            <FileSpreadsheet size={15}/> Export Excel
-          </button>
-          <button onClick={exportCsv} className="inline-flex items-center gap-2 rounded-md border border-white/15 px-3 py-2 text-sm text-gray-200 hover:bg-white/10">
-            <Download size={15}/> Export CSV
-          </button>
+          <span className="text-xs text-gray-400">Import/export se fait dans chaque carte club.</span>
         </div>
       </div>
 
@@ -357,9 +341,20 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
                     </table>
                   </div>
                   <div className="flex items-center justify-between gap-2 border-t border-white/10 px-3 py-2">
-                    <button onClick={() => addPlayer(club.id)} className="inline-flex items-center gap-2 rounded-md border border-white/15 px-3 py-1.5 text-xs text-gray-200 hover:bg-white/10">
-                      <Plus size={14}/> Joueur
-                    </button>
+                    <div className="flex flex-wrap gap-2">
+                      <button onClick={() => addPlayer(club.id)} className="inline-flex items-center gap-2 rounded-md border border-white/15 px-3 py-1.5 text-xs text-gray-200 hover:bg-white/10">
+                        <Plus size={14}/> Joueur
+                      </button>
+                      <button onClick={() => { setImportClubId(club.id); fileRef.current?.click() }} className="inline-flex items-center gap-2 rounded-md border border-cyan/30 px-3 py-1.5 text-xs text-cyan hover:bg-cyan/10">
+                        <Upload size={14}/> Import
+                      </button>
+                      <button onClick={() => exportExcel(club.id)} className="inline-flex items-center gap-2 rounded-md border border-white/15 px-3 py-1.5 text-xs text-gray-200 hover:bg-white/10">
+                        <FileSpreadsheet size={14}/> Excel
+                      </button>
+                      <button onClick={() => exportCsv(club.id)} className="inline-flex items-center gap-2 rounded-md border border-white/15 px-3 py-1.5 text-xs text-gray-200 hover:bg-white/10">
+                        <Download size={14}/> CSV
+                      </button>
+                    </div>
                     <button onClick={() => saveClub(club.id)} disabled={savingClub === club.id}
                       className="inline-flex items-center gap-2 rounded-md bg-cyan px-3 py-1.5 text-xs font-bold text-navy disabled:opacity-50">
                       <Save size={14}/> {savingClub === club.id ? 'Sauvegarde...' : 'Sauvegarder'}

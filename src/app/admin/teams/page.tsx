@@ -6,10 +6,11 @@ export const revalidate = 0
 
 export default async function TeamsPage() {
   const sb = getSupabaseAdmin()
-  const [{ data: clubs }, { data: divisions }, { data: players, error: playersError }] = await Promise.all([
+  const [{ data: clubs }, { data: divisions }, { data: players, error: playersError }, playerDetailsCheck] = await Promise.all([
     sb.from('clubs').select('*').order('id'),
     sb.from('divisions').select('*').order('display_order'),
     sb.from('club_players').select('*').order('player_order'),
+    sb.from('club_players').select('license_number,category,phone,email,notes').limit(1),
   ])
 
   return (
@@ -30,6 +31,13 @@ export default async function TeamsPage() {
         <div className="rounded-xl border border-amber-400/30 bg-amber-500/10 p-4 text-sm text-amber-100">
           La table <strong>club_players</strong> n'est pas encore disponible dans Supabase.
           Execute <strong>supabase/003_club_players.sql</strong> dans le SQL Editor, puis reviens sur cette page.
+        </div>
+      )}
+
+      {!playersError && playerDetailsCheck.error && (
+        <div className="rounded-xl border border-amber-400/30 bg-amber-500/10 p-4 text-sm text-amber-100">
+          Les colonnes details joueurs ne sont pas encore disponibles dans Supabase.
+          Re-execute <strong>supabase/003_club_players.sql</strong> dans le SQL Editor, puis recharge la page.
         </div>
       )}
 

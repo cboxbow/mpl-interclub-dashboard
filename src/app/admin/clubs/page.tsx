@@ -7,9 +7,10 @@ export const revalidate = 0
 
 export default async function ClubsPage() {
   const sb = getSupabaseAdmin()
-  const [{ data: clubs }, { data: divisions }] = await Promise.all([
+  const [{ data: clubs }, { data: divisions }, detailsCheck] = await Promise.all([
     sb.from('clubs').select('*').order('id'),
     sb.from('divisions').select('*').order('display_order'),
+    sb.from('clubs').select('venue_details,contact_name,contact_phone,contact_email').limit(1),
   ])
 
   return (
@@ -21,6 +22,12 @@ export default async function ClubsPage() {
           Choisissez le club officiel: le logo, les terrains et le contact se remplissent automatiquement.
         </p>
       </div>
+      {detailsCheck.error && (
+        <div className="rounded-xl border border-amber-400/30 bg-amber-500/10 p-4 text-sm text-amber-100">
+          Les colonnes terrain/contact ne sont pas encore disponibles dans Supabase.
+          Execute <strong>supabase/005_club_details.sql</strong> dans le SQL Editor, puis recharge la page.
+        </div>
+      )}
       <ClubEditor clubs={(clubs ?? []) as Club[]} divisions={(divisions ?? []) as Division[]} catalog={CLUB_CATALOG}/>
     </div>
   )

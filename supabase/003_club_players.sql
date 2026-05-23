@@ -48,9 +48,11 @@ ALTER TABLE club_players ADD COLUMN IF NOT EXISTS phone TEXT;
 ALTER TABLE club_players ADD COLUMN IF NOT EXISTS email TEXT;
 ALTER TABLE club_players ADD COLUMN IF NOT EXISTS notes TEXT;
 
+DROP POLICY IF EXISTS "public_read_club_players" ON club_players;
 CREATE POLICY "public_read_club_players" ON club_players
   FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "admin_write_club_players" ON club_players;
 CREATE POLICY "admin_write_club_players" ON club_players
   FOR ALL USING (
     current_setting('request.jwt.claims', true)::json->>'role' = 'service_role'

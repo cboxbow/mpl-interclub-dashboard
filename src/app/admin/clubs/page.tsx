@@ -1,5 +1,5 @@
 import ClubEditor from '@/components/ClubEditor'
-import { CLUB_LOGOS } from '@/lib/clubLogos'
+import { CLUB_CATALOG } from '@/lib/clubLogos'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import type { Club, Division } from '@/lib/types'
 
@@ -18,10 +18,10 @@ export default async function ClubsPage() {
         <div className="text-xs font-bold uppercase tracking-[0.28em] interclub-blue-text mb-2">Admin clubs</div>
         <h1 className="interclub-title text-3xl sm:text-5xl font-black uppercase leading-none">Liste des clubs</h1>
         <p className="text-sm text-gray-400 mt-3">
-          Modifiez les noms, abreviations et logos des clubs par division.
+          Choisissez le club officiel: le logo, les terrains et le contact se remplissent automatiquement.
         </p>
       </div>
-      <ClubEditor clubs={(clubs ?? []) as Club[]} divisions={(divisions ?? []) as Division[]} logos={CLUB_LOGOS}/>
+      <ClubEditor clubs={(clubs ?? []) as Club[]} divisions={(divisions ?? []) as Division[]} catalog={CLUB_CATALOG}/>
     </div>
   )
 }

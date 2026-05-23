@@ -16,6 +16,10 @@ export interface Club {
   name: string
   short_name: string
   logo_url?: string
+  venue_details?: string | null
+  contact_name?: string | null
+  contact_phone?: string | null
+  contact_email?: string | null
 }
 
 export interface ClubPlayer {

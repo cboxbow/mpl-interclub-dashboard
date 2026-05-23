@@ -18,6 +18,17 @@ export interface Club {
   logo_url?: string
 }
 
+export interface ClubPlayer {
+  id?: number
+  club_id: number
+  last_name: string
+  first_name: string
+  ranking: number | null
+  player_order?: number
+  created_at?: string
+  updated_at?: string
+}
+
 export interface Journee {
   id: number
   number: number

@@ -31,7 +31,7 @@ export default async function DashboardPage() {
   })
 
   const nextJournee = (journees ?? []).find((j: Journee) => j.status !== 'completed')
-  const totalClubs = (divisions ?? []).reduce((sum: number, div: Division) => sum + div.n_clubs, 0)
+  const campaignClubCount = 18
 
   return (
     <div className="space-y-6">
@@ -41,7 +41,7 @@ export default async function DashboardPage() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="max-w-3xl">
               <div className="text-xs font-bold uppercase tracking-[0.34em] interclub-blue-text mb-2">
-                One island. {totalClubs || 38} clubs. 1 identity.
+                One island. {campaignClubCount} clubs. 1 identity.
               </div>
               <h1 className="interclub-title text-4xl sm:text-6xl lg:text-7xl font-black uppercase leading-none">
                 Interclub 2026

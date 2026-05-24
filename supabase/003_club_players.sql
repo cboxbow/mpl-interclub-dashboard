@@ -7,6 +7,10 @@ CREATE TABLE IF NOT EXISTS club_players (
   last_name    TEXT    NOT NULL DEFAULT '',
   first_name   TEXT    NOT NULL DEFAULT '',
   ranking      INTEGER,
+  ranking_points NUMERIC,
+  ranking_gender TEXT CHECK (ranking_gender IN ('H', 'F')),
+  ranking_source_id INTEGER REFERENCES player_rankings(id) ON DELETE SET NULL,
+  ranking_source_club TEXT,
   player_status TEXT NOT NULL DEFAULT 'NvEQ'
     CHECK (player_status IN ('EQ','NvEQ','INVIT')),
   is_unranked  BOOLEAN NOT NULL DEFAULT false,
@@ -47,6 +51,10 @@ ALTER TABLE club_players ADD COLUMN IF NOT EXISTS category TEXT;
 ALTER TABLE club_players ADD COLUMN IF NOT EXISTS phone TEXT;
 ALTER TABLE club_players ADD COLUMN IF NOT EXISTS email TEXT;
 ALTER TABLE club_players ADD COLUMN IF NOT EXISTS notes TEXT;
+ALTER TABLE club_players ADD COLUMN IF NOT EXISTS ranking_points NUMERIC;
+ALTER TABLE club_players ADD COLUMN IF NOT EXISTS ranking_gender TEXT;
+ALTER TABLE club_players ADD COLUMN IF NOT EXISTS ranking_source_id INTEGER;
+ALTER TABLE club_players ADD COLUMN IF NOT EXISTS ranking_source_club TEXT;
 
 DROP POLICY IF EXISTS "public_read_club_players" ON club_players;
 CREATE POLICY "public_read_club_players" ON club_players

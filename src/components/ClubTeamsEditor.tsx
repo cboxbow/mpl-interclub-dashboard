@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState } from 'react'
 import { AlertTriangle, CheckCircle2, Download, FileSpreadsheet, Plus, Save, Trash2, Upload } from 'lucide-react'
-import type { Club, ClubPlayer, Division } from '@/lib/types'
+import type { Club, ClubPlayer, Division, PlayerRanking } from '@/lib/types'
 import { getSupabase } from '@/lib/supabase'
 import Image from 'next/image'
 
@@ -12,6 +12,8 @@ interface Props {
   clubs: Club[]
   divisions: Division[]
   initialPlayers: ClubPlayer[]
+  rankings: PlayerRanking[]
+  supportsRankingLink: boolean
 }
 
 const blankPlayer = (clubId: number, order: number): PlayerDraft => ({
@@ -20,6 +22,10 @@ const blankPlayer = (clubId: number, order: number): PlayerDraft => ({
   last_name: '',
   first_name: '',
   ranking: null,
+  ranking_points: null,
+  ranking_gender: null,
+  ranking_source_id: null,
+  ranking_source_club: '',
   player_status: 'NvEQ',
   is_unranked: false,
   player_confirmed: false,
@@ -34,10 +40,24 @@ const blankPlayer = (clubId: number, order: number): PlayerDraft => ({
 
 const clean = (value: unknown) => String(value ?? '').trim()
 const asBool = (value: unknown) => ['1', 'true', 'oui', 'yes', 'x'].includes(clean(value).toLowerCase())
+const normalize = (value: unknown) => clean(value)
+  .normalize('NFD')
+  .replace(/[\u0300-\u036f]/g, '')
+  .toLowerCase()
 
-export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Props) {
+const splitPlayerName = (fullName: string) => {
+  const parts = clean(fullName).replace(/\s+/g, ' ').split(' ').filter(Boolean)
+  return {
+    first_name: parts[0] ?? '',
+    last_name: parts.slice(1).join(' '),
+  }
+}
+
+export default function ClubTeamsEditor({ clubs, divisions, initialPlayers, rankings, supportsRankingLink }: Props) {
   const fileRef = useRef<HTMLInputElement | null>(null)
   const [importClubId, setImportClubId] = useState<number | null>(null)
+  const [lookupByPlayer, setLookupByPlayer] = useState<Record<string, string>>({})
+  const [activeLookupId, setActiveLookupId] = useState<string | null>(null)
   const [playersByClub, setPlayersByClub] = useState<Record<number, PlayerDraft[]>>(() => {
     const grouped: Record<number, PlayerDraft[]> = {}
     clubs.forEach(club => {
@@ -57,6 +77,11 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
   const [message, setMessage] = useState('')
 
   const divisionById = useMemo(() => new Map(divisions.map(div => [div.id, div])), [divisions])
+  const rankingOptions = useMemo(() => (
+    rankings
+      .slice()
+      .sort((a, b) => (a.gender === b.gender ? (Number(a.rank) || 99999) - (Number(b.rank) || 99999) : a.gender.localeCompare(b.gender)))
+  ), [rankings])
 
   const groupedClubs = useMemo(() => (
     divisions
@@ -92,12 +117,49 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
       [clubId]: (prev[clubId] ?? []).map(player => player.local_id === localId
         ? {
           ...player,
-          [field]: field === 'ranking'
+          [field]: field === 'ranking' || field === 'ranking_points' || field === 'ranking_source_id'
             ? (value === '' ? null : Number(value))
             : value,
         }
         : player),
     }))
+  }
+
+  const rankingMatches = (query: string, gender?: 'H' | 'F' | null) => {
+    const needle = normalize(query)
+    if (needle.length < 2) return []
+    return rankingOptions
+      .filter(item => (!gender || item.gender === gender) && normalize(item.player_name).includes(needle))
+      .slice(0, 7)
+  }
+
+  const applyRanking = (clubId: number, localId: string, ranking: PlayerRanking) => {
+    const names = splitPlayerName(ranking.player_name)
+    const clubInfo = clubs.find(club => club.id === clubId)
+    setPlayersByClub(prev => ({
+      ...prev,
+      [clubId]: (prev[clubId] ?? []).map(player => player.local_id === localId
+        ? {
+          ...player,
+          last_name: names.last_name || player.last_name,
+          first_name: names.first_name || player.first_name,
+          ranking: ranking.rank ?? null,
+          ranking_points: Number(ranking.total_points) || 0,
+          ranking_gender: ranking.gender,
+          ranking_source_id: ranking.id ?? null,
+          ranking_source_club: ranking.club_name || ranking.source_club_name || '',
+          phone: ranking.mobile || player.phone || clubInfo?.contact_phone || '',
+          email: ranking.email || player.email || clubInfo?.contact_email || '',
+          category: ranking.level || player.category || '',
+          is_unranked: false,
+        }
+        : player),
+    }))
+    setLookupByPlayer(prev => ({
+      ...prev,
+      [localId]: ranking.player_name,
+    }))
+    setActiveLookupId(null)
   }
 
   const addPlayer = (clubId: number) => {
@@ -118,23 +180,33 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
     setSavingClub(clubId)
     setMessage('')
     const rows = (playersByClub[clubId] ?? [])
-      .map((player, index) => ({
-        club_id: clubId,
-        last_name: player.last_name.trim(),
-        first_name: player.first_name.trim(),
-        ranking: player.ranking === null || Number.isNaN(Number(player.ranking)) ? null : Number(player.ranking),
-        player_status: player.player_status ?? 'NvEQ',
-        is_unranked: Boolean(player.is_unranked),
-        player_confirmed: Boolean(player.player_confirmed),
-        club_validated: Boolean(player.club_validated),
-        license_number: clean(player.license_number) || null,
-        category: clean(player.category) || null,
-        phone: clean(player.phone) || null,
-        email: clean(player.email) || null,
-        notes: clean(player.notes) || null,
-        player_order: index,
-      }))
-      .filter(player => player.last_name || player.first_name || player.ranking !== null || player.is_unranked || player.license_number || player.category || player.phone || player.email || player.notes)
+      .map((player, index) => {
+        const base = {
+          club_id: clubId,
+          last_name: player.last_name.trim(),
+          first_name: player.first_name.trim(),
+          ranking: player.ranking === null || Number.isNaN(Number(player.ranking)) ? null : Number(player.ranking),
+          player_status: player.player_status ?? 'NvEQ',
+          is_unranked: Boolean(player.is_unranked),
+          player_confirmed: Boolean(player.player_confirmed),
+          club_validated: Boolean(player.club_validated),
+          license_number: clean(player.license_number) || null,
+          category: clean(player.category) || null,
+          phone: clean(player.phone) || null,
+          email: clean(player.email) || null,
+          notes: clean(player.notes) || null,
+          player_order: index,
+        }
+        if (!supportsRankingLink) return base
+        return {
+          ...base,
+          ranking_points: player.ranking_points === null || player.ranking_points === undefined || Number.isNaN(Number(player.ranking_points)) ? null : Number(player.ranking_points),
+          ranking_gender: player.ranking_gender || null,
+          ranking_source_id: player.ranking_source_id || null,
+          ranking_source_club: clean(player.ranking_source_club) || null,
+        }
+      })
+      .filter(player => player.last_name || player.first_name || player.ranking !== null || ('ranking_points' in player && player.ranking_points !== null) || player.is_unranked || player.license_number || player.category || player.phone || player.email || player.notes)
 
     const sb = getSupabase()
     const { error: deleteError } = await sb.from('club_players').delete().eq('club_id', clubId)
@@ -175,6 +247,10 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
           nom: player.last_name,
           prenom: player.first_name,
           rang: player.ranking,
+          points_ranking: player.ranking_points ?? '',
+          genre_ranking: player.ranking_gender ?? '',
+          club_ranking: player.ranking_source_club ?? '',
+          ranking_source_id: player.ranking_source_id ?? '',
           statut: player.player_status ?? 'NvEQ',
           non_classe: player.is_unranked ? 'oui' : '',
           joueur_confirme: player.player_confirmed ? 'oui' : '',
@@ -225,12 +301,17 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
     rows.forEach((row, order) => {
       const entries = Object.fromEntries(Object.entries(row).map(([key, value]) => [key.toLowerCase().trim(), value]))
       const rankingRaw = clean(entries.rang || entries.ranking || entries.classement)
+      const pointsRaw = clean(entries.points_ranking || entries.points || entries.total_points)
       const player: PlayerDraft = {
         local_id: `import-${clubId}-${order}-${Math.random().toString(36).slice(2)}`,
         club_id: clubId,
         last_name: clean(entries.nom || entries.last_name),
         first_name: clean(entries.prenom || entries.first_name),
         ranking: rankingRaw === '' ? null : Number(rankingRaw),
+        ranking_points: pointsRaw === '' ? null : Number(pointsRaw),
+        ranking_gender: (clean(entries.genre_ranking || entries.gender || entries.sexe) || null) as PlayerDraft['ranking_gender'],
+        ranking_source_id: clean(entries.ranking_source_id) ? Number(entries.ranking_source_id) : null,
+        ranking_source_club: clean(entries.club_ranking || entries.club_source || entries.ranking_club),
         player_status: (clean(entries.statut || entries.status || entries.player_status) || 'NvEQ') as PlayerDraft['player_status'],
         is_unranked: asBool(entries.non_classe || entries.unranked || entries.is_unranked),
         player_confirmed: asBool(entries.joueur_confirme || entries.confirmed || entries.player_confirmed),
@@ -242,7 +323,7 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
         notes: clean(entries.notes || entries.detail || entries.details),
         player_order: order,
       }
-      if (player.last_name || player.first_name || player.ranking !== null || player.is_unranked || player.license_number || player.category || player.phone || player.email || player.notes) {
+      if (player.last_name || player.first_name || player.ranking !== null || player.ranking_points !== null || player.is_unranked || player.license_number || player.category || player.phone || player.email || player.notes) {
         importedPlayers.push(player)
       }
     })
@@ -316,7 +397,10 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
                     <span>{warnings.length ? warnings.join(' ') : 'Equipe conforme aux controles de base.'}</span>
                   </div>
                   <div className="space-y-3 p-3">
-                    {rows.map((player, index) => (
+                    {rows.map((player, index) => {
+                      const lookupValue = lookupByPlayer[player.local_id] ?? [player.first_name, player.last_name].filter(Boolean).join(' ')
+                      const matches = rankingMatches(lookupValue, div.category)
+                      return (
                       <div key={player.local_id} className="rounded-lg border border-white/10 bg-black/20 p-3">
                         <div className="mb-3 flex items-center justify-between gap-3">
                           <div className="text-xs font-black uppercase tracking-[0.16em] text-cyan">Joueur {index + 1}</div>
@@ -327,6 +411,48 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
                           >
                             <Trash2 size={15}/>
                           </button>
+                        </div>
+
+                        <div className="relative mb-3 rounded-lg border border-cyan/15 bg-cyan/5 p-3">
+                          <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-cyan">
+                            Recherche ranking officiel
+                            <input
+                              value={lookupValue}
+                              onFocus={() => setActiveLookupId(player.local_id)}
+                              onChange={e => {
+                                setActiveLookupId(player.local_id)
+                                setLookupByPlayer(prev => ({ ...prev, [player.local_id]: e.target.value }))
+                              }}
+                              placeholder="Ex: Mathieu Vallet"
+                              className="mt-1 h-9 w-full rounded-md border border-cyan/20 bg-black/35 px-3 text-sm text-white outline-none focus:border-cyan"
+                            />
+                          </label>
+                          {activeLookupId === player.local_id && matches.length > 0 && (
+                            <div className="mt-2 overflow-hidden rounded-md border border-cyan/20 bg-navy/95 shadow-xl">
+                              {matches.map(match => (
+                                <button
+                                  key={`${match.gender}-${match.id ?? match.player_name}`}
+                                  type="button"
+                                  onClick={() => applyRanking(club.id, player.local_id, match)}
+                                  className="grid w-full grid-cols-[1fr_auto] gap-3 border-b border-white/5 px-3 py-2 text-left text-xs text-gray-200 last:border-b-0 hover:bg-cyan/10"
+                                >
+                                  <span>
+                                    <span className="font-black text-white">{match.player_name}</span>
+                                    <span className="ml-2 text-cyan">{match.gender}</span>
+                                    <span className="ml-2 text-gray-400">{match.club_name || match.source_club_name || 'Club a verifier'}</span>
+                                  </span>
+                                  <span className="font-bold text-cyan">Rang {match.rank ?? '-'} · {Number(match.total_points) || 0} pts</span>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                          {player.ranking_source_id && (
+                            <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-gray-300">
+                              <span className="rounded-full border border-cyan/30 bg-cyan/10 px-2 py-1 text-cyan">Ranking lie</span>
+                              <span>{player.ranking_gender} · {player.ranking_points ?? 0} pts</span>
+                              {player.ranking_source_club && <span>Club source: {player.ranking_source_club}</span>}
+                            </div>
+                          )}
                         </div>
 
                         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-[1fr_1fr_110px_120px]">
@@ -374,6 +500,33 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
                           </label>
                         </div>
 
+                        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-[120px_110px_1fr_1fr]">
+                          <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">
+                            Points
+                            <input type="number" value={player.ranking_points ?? ''} onChange={e => updatePlayer(club.id, player.local_id, 'ranking_points', e.target.value)}
+                              className="mt-1 h-9 w-full rounded-md border border-white/10 bg-black/25 px-3 text-right text-sm text-white outline-none focus:border-cyan"/>
+                          </label>
+                          <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">
+                            Genre
+                            <select value={player.ranking_gender ?? ''} onChange={e => updatePlayer(club.id, player.local_id, 'ranking_gender', e.target.value)}
+                              className="mt-1 h-9 w-full rounded-md border border-white/10 bg-black/25 px-3 text-sm text-white outline-none focus:border-cyan">
+                              <option value="">-</option>
+                              <option value="H">H</option>
+                              <option value="F">F</option>
+                            </select>
+                          </label>
+                          <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">
+                            Club ranking
+                            <input value={player.ranking_source_club ?? ''} onChange={e => updatePlayer(club.id, player.local_id, 'ranking_source_club', e.target.value)}
+                              className="mt-1 h-9 w-full rounded-md border border-white/10 bg-black/25 px-3 text-sm text-white outline-none focus:border-cyan"/>
+                          </label>
+                          <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">
+                            ID source
+                            <input type="number" value={player.ranking_source_id ?? ''} onChange={e => updatePlayer(club.id, player.local_id, 'ranking_source_id', e.target.value)}
+                              className="mt-1 h-9 w-full rounded-md border border-white/10 bg-black/25 px-3 text-right text-sm text-white outline-none focus:border-cyan"/>
+                          </label>
+                        </div>
+
                         <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                           <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">
                             Telephone
@@ -402,7 +555,8 @@ export default function ClubTeamsEditor({ clubs, divisions, initialPlayers }: Pr
                           </label>
                         </div>
                       </div>
-                    ))}
+                      )
+                    })}
                   </div>
                   <div className="flex items-center justify-between gap-2 border-t border-white/10 px-3 py-2">
                     <div className="flex flex-wrap gap-2">

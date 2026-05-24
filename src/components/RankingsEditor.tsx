@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useRef, useState } from 'react'
-import { Download, FileSpreadsheet, Plus, Save, Trash2, Upload } from 'lucide-react'
+import { Download, Plus, Save, Search, Trash2, Upload } from 'lucide-react'
 import type { PlayerRanking } from '@/lib/types'
 
 type Draft = PlayerRanking & { local_id: string }
@@ -34,12 +34,28 @@ export default function RankingsEditor({ initialRows }: { initialRows: PlayerRan
   const fileRef = useRef<HTMLInputElement | null>(null)
   const [rows, setRows] = useState<Draft[]>(() => initialRows.map((row, index) => ({ ...row, local_id: String(row.id ?? index) })))
   const [tab, setTab] = useState<'H' | 'F'>('H')
+  const [search, setSearch] = useState('')
   const [message, setMessage] = useState('')
   const [saving, setSaving] = useState(false)
 
-  const visibleRows = useMemo(() => rows
-    .filter(row => row.gender === tab)
-    .sort((a, b) => (a.rank ?? 999999) - (b.rank ?? 999999) || a.player_name.localeCompare(b.player_name)), [rows, tab])
+  const visibleRows = useMemo(() => {
+    const needle = search.trim().toLowerCase()
+    return rows
+      .filter(row => row.gender === tab)
+      .filter(row => {
+        if (!needle) return true
+        return [
+          row.player_name,
+          row.club_name,
+          row.source_club_name,
+          row.mobile,
+          row.email,
+          row.rank,
+          row.total_points,
+        ].some(value => String(value ?? '').toLowerCase().includes(needle))
+      })
+      .sort((a, b) => (a.rank ?? 999999) - (b.rank ?? 999999) || a.player_name.localeCompare(b.player_name))
+  }, [rows, tab, search])
 
   const updateRow = (localId: string, field: keyof PlayerRanking, value: string) => {
     setRows(prev => prev.map(row => row.local_id === localId ? {
@@ -180,18 +196,29 @@ export default function RankingsEditor({ initialRows }: { initialRows: PlayerRan
           </div>
         </div>
         <div className="mt-4 flex gap-2">
-          {(['H', 'F'] as const).map(item => (
-            <button key={item} onClick={() => setTab(item)}
-              className={`rounded-md px-3 py-1.5 text-xs font-bold ${tab === item ? 'bg-cyan text-navy' : 'border border-white/10 text-gray-300 hover:bg-white/10'}`}>
-              {item === 'H' ? 'Hommes' : 'Dames'} ({rows.filter(row => row.gender === item).length})
-            </button>
-          ))}
+          <div className="flex flex-wrap gap-2">
+            {(['H', 'F'] as const).map(item => (
+              <button key={item} onClick={() => setTab(item)}
+                className={`rounded-md px-3 py-1.5 text-xs font-bold ${tab === item ? 'bg-cyan text-navy' : 'border border-white/10 text-gray-300 hover:bg-white/10'}`}>
+                {item === 'H' ? 'Hommes' : 'Dames'} ({rows.filter(row => row.gender === item).length})
+              </button>
+            ))}
+          </div>
+          <label className="ml-auto flex min-w-[260px] items-center gap-2 rounded-md border border-white/10 bg-black/25 px-3 py-1.5 text-sm text-gray-300 focus-within:border-cyan">
+            <Search size={15} className="text-cyan"/>
+            <input
+              value={search}
+              onChange={event => setSearch(event.target.value)}
+              placeholder="Rechercher joueur, club, tel, email..."
+              className="w-full bg-transparent text-white outline-none placeholder:text-gray-500"
+            />
+          </label>
         </div>
       </div>
 
       <div className="glass-panel overflow-hidden rounded-xl">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[1120px] text-sm">
+          <table className="w-full min-w-[1040px] text-sm">
             <thead className="bg-cyan/10 text-xs uppercase text-cyan">
               <tr>
                 <th className="px-2 py-2 text-left">Genre</th>
@@ -201,7 +228,6 @@ export default function RankingsEditor({ initialRows }: { initialRows: PlayerRan
                 <th className="px-2 py-2 text-left">Club</th>
                 <th className="px-2 py-2 text-left">Tel</th>
                 <th className="px-2 py-2 text-left">Email</th>
-                <th className="px-2 py-2 text-left">Niveau</th>
                 <th className="px-2 py-2"></th>
               </tr>
             </thead>
@@ -238,10 +264,6 @@ export default function RankingsEditor({ initialRows }: { initialRows: PlayerRan
                   <td className="px-2 py-2">
                     <input value={row.email ?? ''} onChange={event => updateRow(row.local_id, 'email', event.target.value)}
                       className="w-56 rounded border border-white/10 bg-black/25 px-2 py-1.5 text-white outline-none focus:border-cyan"/>
-                  </td>
-                  <td className="px-2 py-2">
-                    <input value={row.level ?? ''} onChange={event => updateRow(row.local_id, 'level', event.target.value)}
-                      className="w-20 rounded border border-white/10 bg-black/25 px-2 py-1.5 text-white outline-none focus:border-cyan"/>
                   </td>
                   <td className="px-2 py-2">
                     <div className="flex gap-1">

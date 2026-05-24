@@ -1,54 +1,12 @@
-import Link from 'next/link'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import type { PlayerRanking } from '@/lib/types'
 import fallbackRankings from '@/data/playerRankings.json'
-import { Database, Download, Trophy } from 'lucide-react'
+import RankingsEditor from '@/components/RankingsEditor'
+import { Database, Trophy } from 'lucide-react'
 
 export const revalidate = 0
 
 const asRankings = (rows: unknown): PlayerRanking[] => rows as PlayerRanking[]
-
-function RankingTable({ title, rows }: { title: string; rows: PlayerRanking[] }) {
-  return (
-    <section className="glass-panel overflow-hidden rounded-xl">
-      <div className="flex flex-col gap-1 border-b border-cyan/20 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="font-black uppercase text-white">{title}</h2>
-          <div className="text-xs text-gray-500">{rows.length} joueurs</div>
-        </div>
-        <div className="text-xs text-cyan">Club et telephone relies depuis Excel</div>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[820px] text-sm">
-          <thead className="bg-cyan/10 text-xs uppercase text-cyan">
-            <tr>
-              <th className="px-3 py-2 text-left">Rang</th>
-              <th className="px-3 py-2 text-left">Joueur</th>
-              <th className="px-3 py-2 text-right">Points</th>
-              <th className="px-3 py-2 text-left">Club</th>
-              <th className="px-3 py-2 text-left">Tel</th>
-              <th className="px-3 py-2 text-left">Email</th>
-              <th className="px-3 py-2 text-left">Niveau</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-white/5">
-            {rows.map((row, index) => (
-              <tr key={`${row.gender}-${row.player_name}-${index}`} className="hover:bg-white/5">
-                <td className="px-3 py-2 font-black text-white">{row.rank ?? '-'}</td>
-                <td className="px-3 py-2 font-bold text-white">{row.player_name}</td>
-                <td className="px-3 py-2 text-right font-bold text-cyan">{Number(row.total_points ?? 0).toLocaleString('fr-FR')}</td>
-                <td className="px-3 py-2 text-gray-300">{row.club_name || row.source_club_name || '-'}</td>
-                <td className="px-3 py-2 text-gray-300">{row.mobile || '-'}</td>
-                <td className="px-3 py-2 text-gray-400">{row.email || '-'}</td>
-                <td className="px-3 py-2 text-gray-400">{row.level || '-'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  )
-}
 
 export default async function AdminRankingsPage() {
   const sb = getSupabaseAdmin()
@@ -93,14 +51,7 @@ export default async function AdminRankingsPage() {
         </div>
       )}
 
-      <div className="flex flex-wrap gap-2">
-        <Link href="/admin/teams" className="inline-flex items-center gap-2 rounded-md border border-white/10 px-3 py-2 text-xs text-gray-200 hover:bg-white/10">
-          <Download size={14}/> Utiliser pour les equipes
-        </Link>
-      </div>
-
-      <RankingTable title="Classement Hommes" rows={men} />
-      <RankingTable title="Classement Dames" rows={women} />
+      <RankingsEditor initialRows={[...men, ...women]} />
     </div>
   )
 }

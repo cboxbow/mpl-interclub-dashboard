@@ -3,13 +3,13 @@
 
 -- DIVISIONS
 INSERT INTO divisions (id,name,short_name,category,level,n_clubs,format,color,display_order) VALUES
-  (1,'D1H Élite','D1H','H',1,8,'aller-retour','01D0FB',1),
-  (2,'D2H National','D2H','H',2,5,'aller-retour','3B82F6',2),
-  (3,'D3H Régional','D3H','H',3,6,'aller','8B5CF6',3),
-  (4,'D4H Développement','D4H','H',4,6,'aller','6B7280',4),
-  (5,'D1F Élite','D1F','F',1,4,'aller-retour','EC4899',5),
-  (6,'D2F National','D2F','F',2,4,'aller-retour','F97316',6),
-  (7,'D3F Open','D3F','F',3,5,'aller','10B981',7);
+  (1,'D1H — MASTERS','D1H','H',1,8,'aller-retour','01D0FB',1),
+  (2,'D2H — CHALLENGER','D2H','H',2,5,'aller-retour','3B82F6',3),
+  (3,'D3H — OPEN','D3H','H',3,6,'aller','8B5CF6',5),
+  (4,'D4H — RISING','D4H','H',4,6,'aller','6B7280',7),
+  (5,'D1F — MASTERS','D1F','F',1,4,'aller-retour','EC4899',2),
+  (6,'D2F — CHALLENGER','D2F','F',2,4,'aller-retour','F97316',4),
+  (7,'D3F — OPEN','D3F','F',3,5,'aller','10B981',6);
 
 -- JOURNEES (15 dates — 3e vendredi de chaque mois)
 INSERT INTO journees (id,number,date,label,status) VALUES
@@ -81,7 +81,7 @@ DECLARE
   v_journee_id INT;
 BEGIN
 
-  -- D1H Élite
+  -- D1H — MASTERS
   -- J1 aller round 1
   INSERT INTO matches (journee_id,division_id,home_club_id,away_club_id,phase,round_number)
     VALUES (1,1,1,8,'aller',1);
@@ -209,7 +209,7 @@ BEGIN
   INSERT INTO matches (journee_id,division_id,home_club_id,away_club_id,phase,round_number)
     VALUES (14,1,6,5,'retour',7);
 
-  -- D2H National
+  -- D2H — CHALLENGER
   -- J1 aller round 1
   INSERT INTO matches (journee_id,division_id,home_club_id,away_club_id,phase,round_number)
     VALUES (1,2,10,13,'aller',1);
@@ -261,7 +261,7 @@ BEGIN
   INSERT INTO matches (journee_id,division_id,home_club_id,away_club_id,phase,round_number)
     VALUES (10,2,13,12,'retour',5);
 
-  -- D3H Régional
+  -- D3H — OPEN
   -- J1 aller round 1
   INSERT INTO matches (journee_id,division_id,home_club_id,away_club_id,phase,round_number)
     VALUES (1,3,14,19,'aller',1);
@@ -298,7 +298,7 @@ BEGIN
   INSERT INTO matches (journee_id,division_id,home_club_id,away_club_id,phase,round_number)
     VALUES (5,3,17,18,'aller',5);
 
-  -- D4H Développement
+  -- D4H — RISING
   -- J1 aller round 1
   INSERT INTO matches (journee_id,division_id,home_club_id,away_club_id,phase,round_number)
     VALUES (1,4,20,25,'aller',1);
@@ -335,7 +335,7 @@ BEGIN
   INSERT INTO matches (journee_id,division_id,home_club_id,away_club_id,phase,round_number)
     VALUES (5,4,23,24,'aller',5);
 
-  -- D1F Élite
+  -- D1F — MASTERS
   -- J1 aller round 1
   INSERT INTO matches (journee_id,division_id,home_club_id,away_club_id,phase,round_number)
     VALUES (1,5,26,29,'aller',1);
@@ -367,7 +367,7 @@ BEGIN
   INSERT INTO matches (journee_id,division_id,home_club_id,away_club_id,phase,round_number)
     VALUES (6,5,29,28,'retour',3);
 
-  -- D2F National
+  -- D2F — CHALLENGER
   -- J1 aller round 1
   INSERT INTO matches (journee_id,division_id,home_club_id,away_club_id,phase,round_number)
     VALUES (1,6,30,33,'aller',1);
@@ -399,7 +399,7 @@ BEGIN
   INSERT INTO matches (journee_id,division_id,home_club_id,away_club_id,phase,round_number)
     VALUES (6,6,33,32,'retour',3);
 
-  -- D3F Open
+  -- D3F — OPEN
   -- J1 aller round 1
   INSERT INTO matches (journee_id,division_id,home_club_id,away_club_id,phase,round_number)
     VALUES (1,7,35,38,'aller',1);

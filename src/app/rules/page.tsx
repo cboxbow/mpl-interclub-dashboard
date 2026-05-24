@@ -5,7 +5,7 @@ const sections = [
     icon: Trophy,
     title: 'Structure sportive',
     items: [
-      '7 divisions: D1H, D2H, D3H, D4H, D1F, D2F, D3F Open.',
+      '7 divisions: D1H — MASTERS, D1F — MASTERS, D2H — CHALLENGER, D2F — CHALLENGER, D3H — OPEN, D3F — OPEN, D4H — RISING.',
       'D1H et D1F en aller-retour; divisions inferieures en aller simple selon le CDC.',
       'Promotions et relegations en fin de saison selon classement final.',
     ],

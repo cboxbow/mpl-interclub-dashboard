@@ -740,7 +740,6 @@ INSERT INTO player_rankings (gender, rank, previous_rank, player_name, total_poi
   ('H', 736, 716, 'JUSTIN GASSIOT', 7, 'SPARC Cascavelle', 'Sparc - Cascavelle', NULL, 'info@urbansport.mu', '6', 'Padel League - RANKINGS - APR 26.xlsx'),
   ('H', 736, 716, 'LEO FEUGIER', 7, 'SPARC Cascavelle', 'Sparc - Cascavelle', '58523357', 'leofeugier2011@gmail.com', '4', 'Padel League - RANKINGS - APR 26.xlsx'),
   ('H', 736, 716, 'BRICE GELLE', 7, 'Cana Beau Plan', 'CAÑA - Beau Plan', '57169032', 'bricegelle@gmail.com', '4', 'Padel League - RANKINGS - APR 26.xlsx'),
-  ('H', 736, 716, 'ZAYAN SOOKIA', 7, 'Urban Sport Black River', 'Urban Sport - Rivière Noire', '57919123', 'zayansookia19@gmail.com', '5', 'Padel League - RANKINGS - APR 26.xlsx'),
   ('H', 736, 716, 'ANDY TANG KAN', 7, 'I Padel By RM - Henessy', 'I Padel By RM - Henessy', '59370028', 'andy.tang8396@gmail.com', '1', 'Padel League - RANKINGS - APR 26.xlsx'),
   ('H', 736, 716, 'ALEXANDRE MARIE', 7, 'Isla Padel Grand Baie', 'Isla Padel - Beau Plan', '59829667', 'timaraiii15@gmail.com', '1', 'Padel League - RANKINGS - APR 26.xlsx'),
   ('H', 736, 716, 'ARTHUR VALLET', 7, 'Urban Sport Black River', 'Urban Sport - Rivière Noire', '54821367', 'arthur.vallet07@gmail.com', '1', 'Padel League - RANKINGS - APR 26.xlsx'),

@@ -91,10 +91,19 @@ function parseRanking(sheetName, gender, members) {
 
 function loadRows() {
   const members = loadMemberMap()
-  return [
+  const rows = [
     ...parseRanking('RANKING - MEN', 'H', members),
     ...parseRanking('RANKING WOMEN', 'F', members),
   ]
+  const deduped = new Map()
+  for (const row of rows) {
+    const key = `${row.gender}|${norm(row.player_name)}`
+    const existing = deduped.get(key)
+    if (!existing || (row.rank ?? 999999) < (existing.rank ?? 999999)) {
+      deduped.set(key, row)
+    }
+  }
+  return [...deduped.values()]
 }
 
 async function importSupabase(rows) {

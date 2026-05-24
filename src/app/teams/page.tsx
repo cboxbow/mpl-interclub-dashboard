@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import type { Club, ClubPlayer, Division } from '@/lib/types'
-import { UsersRound } from 'lucide-react'
+import { ShieldCheck, Trophy, UsersRound } from 'lucide-react'
 import { CLUB_CATALOG } from '@/lib/clubLogos'
 
 export const revalidate = 60
@@ -75,17 +75,75 @@ export default async function TeamsPublicPage() {
       })] as const
     })
     .sort(([a], [b]) => a.localeCompare(b))
+  const publicClubCount = groupedEntries.length
+  const divisionEntriesCount = groupedEntries.reduce((sum, [, entries]) => sum + entries.length, 0)
+  const filledPlayersCount = [...playersByClub.values()].reduce(
+    (sum, roster) => sum + roster.filter(player => player.last_name || player.first_name || player.ranking !== null).length,
+    0
+  )
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
-      <div className="glass-panel rounded-2xl p-5 text-center sm:p-6">
-        <div className="mb-2 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.28em] interclub-blue-text">
-          <UsersRound size={18}/> Equipes publiques
+    <div className="mx-auto max-w-7xl space-y-7">
+      <section className="relative -mx-4 -mt-6 min-h-[70vh] overflow-hidden border-b border-cyan/20 bg-black sm:rounded-b-[2rem]">
+        <img
+          src="/interclub-teams-hero.gif"
+          alt="Every club every player every point counts"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,4,16,0.04)_0%,rgba(0,4,16,0.18)_42%,rgba(0,4,16,0.91)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,4,16,0.74)_0%,rgba(0,4,16,0.22)_48%,rgba(0,4,16,0.34)_100%)]" />
+        <div className="absolute inset-x-0 bottom-0 h-px bg-cyan/70 shadow-[0_0_34px_rgba(1,208,251,0.95)]" />
+
+        <div className="relative z-10 flex min-h-[70vh] flex-col justify-end px-4 pb-6 pt-28 sm:px-6 lg:px-8">
+          <div className="max-w-3xl">
+            <div className="mb-4 inline-flex items-center gap-2 border-l-2 border-cyan pl-4 text-xs font-black uppercase tracking-[0.30em] interclub-blue-text">
+              <UsersRound size={17}/> Equipes publiques
+            </div>
+            <h1 className="interclub-title text-4xl font-black uppercase leading-none sm:text-6xl lg:text-7xl">
+              La force des clubs
+            </h1>
+            <p className="mt-4 max-w-2xl text-sm font-bold uppercase tracking-[0.18em] text-cyan sm:text-base">
+              Every club. Every player. Every point counts.
+            </p>
+            <p className="mt-4 max-w-2xl text-sm leading-6 text-gray-200 sm:text-base">
+              Une vue publique claire des equipes engagees: noms et ranking uniquement.
+              Les contacts, licences et notes restent reserves a l'administration.
+            </p>
+          </div>
+
+          <div className="mt-7 grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-cyan/20 bg-cyan/20 sm:grid-cols-3">
+            <div className="bg-black/45 p-4 backdrop-blur">
+              <div className="text-3xl font-black text-white">{publicClubCount}</div>
+              <div className="text-xs uppercase tracking-[0.18em] text-cyan">Clubs publics</div>
+            </div>
+            <div className="bg-black/45 p-4 backdrop-blur">
+              <div className="text-3xl font-black text-white">{divisionEntriesCount}</div>
+              <div className="text-xs uppercase tracking-[0.18em] text-cyan">Equipes division</div>
+            </div>
+            <div className="bg-black/45 p-4 backdrop-blur">
+              <div className="text-3xl font-black text-white">{filledPlayersCount}</div>
+              <div className="text-xs uppercase tracking-[0.18em] text-cyan">Joueurs visibles</div>
+            </div>
+          </div>
         </div>
-        <h1 className="interclub-title text-3xl font-black uppercase leading-none sm:text-5xl">Joueurs par club</h1>
-        <p className="mx-auto mt-3 max-w-2xl text-sm text-gray-300">
-          Vue publique simplifiee: noms et ranking uniquement. Les contacts, licences et notes restent reserves a l'admin.
-        </p>
+      </section>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="glass-panel rounded-xl p-4">
+          <UsersRound size={22} className="mb-3 text-cyan"/>
+          <div className="font-black uppercase text-white">Un club, plusieurs divisions</div>
+          <p className="mt-1 text-sm text-gray-300">Les clubs sont regroupes par identite officielle pour eviter les doublons publics.</p>
+        </div>
+        <div className="glass-panel rounded-xl p-4">
+          <Trophy size={22} className="mb-3 text-cyan"/>
+          <div className="font-black uppercase text-white">Ranking lisible</div>
+          <p className="mt-1 text-sm text-gray-300">La page publique affiche seulement les noms et rankings utiles au suivi sportif.</p>
+        </div>
+        <div className="glass-panel rounded-xl p-4">
+          <ShieldCheck size={22} className="mb-3 text-cyan"/>
+          <div className="font-black uppercase text-white">Details proteges</div>
+          <p className="mt-1 text-sm text-gray-300">Telephones, licences et notes restent dans l'espace admin pour les operations.</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -93,18 +151,21 @@ export default async function TeamsPublicPage() {
           const catalog = catalogByName.get(clubName)
           const logoUrl = catalog?.logoUrl || entries.find(entry => entry.logo_url)?.logo_url
           return (
-          <section key={clubName} className="glass-panel overflow-hidden rounded-xl">
-            <div className="flex items-center gap-3 border-b border-cyan/20 px-4 py-3">
-              <div className="flex h-14 w-16 items-center justify-center overflow-hidden rounded border border-white/10 bg-black/30">
+          <section key={clubName} className="group overflow-hidden rounded-xl border border-cyan/20 bg-[linear-gradient(135deg,rgba(1,15,39,0.90),rgba(0,22,76,0.42))] shadow-[0_20px_60px_rgba(0,0,0,0.28)] transition hover:border-cyan/45 hover:shadow-[0_0_40px_rgba(1,208,251,0.13)]">
+            <div className="flex items-center gap-3 border-b border-cyan/20 bg-black/18 px-4 py-4">
+              <div className="flex h-16 w-20 items-center justify-center overflow-hidden rounded-md border border-white/10 bg-black/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
                 {logoUrl ? (
-                  <Image src={logoUrl} alt={clubName} width={64} height={52} className="max-h-12 w-auto object-contain"/>
+                  <Image src={logoUrl} alt={clubName} width={76} height={58} className="max-h-14 w-auto object-contain"/>
                 ) : (
                   <span className="text-[10px] text-gray-600">Logo</span>
                 )}
               </div>
-              <div>
-                <h2 className="font-black uppercase text-white">{clubName}</h2>
-                <div className="text-xs text-gray-400">{entries.length} division{entries.length > 1 ? 's' : ''}</div>
+              <div className="min-w-0">
+                <h2 className="font-black uppercase text-white drop-shadow-[0_0_12px_rgba(1,208,251,0.35)]">{clubName}</h2>
+                <div className="mt-1 flex flex-wrap gap-2 text-xs text-gray-400">
+                  <span>{entries.length} division{entries.length > 1 ? 's' : ''}</span>
+                  {catalog && <span className="text-cyan/80">{catalog.location} - {catalog.zone}</span>}
+                </div>
               </div>
             </div>
             <div className="divide-y divide-white/5">

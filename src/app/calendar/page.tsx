@@ -1,6 +1,7 @@
 import { getSupabaseAdmin } from '@/lib/supabase'
 import type { Journee, Match, Division } from '@/lib/types'
 import { CalendarDays, ShieldCheck } from 'lucide-react'
+import Link from 'next/link'
 
 export const revalidate = 3600
 
@@ -91,8 +92,9 @@ export default async function CalendarPage() {
               {/* Division badges */}
               <div className="flex flex-wrap gap-1.5">
                 {stats.map(({ div, total, done }) => (
-                  <div key={div.id}
-                    className="text-xs px-2 py-0.5 rounded-full font-medium"
+                  <Link key={div.id}
+                    href={`/divisions/${div.id}?journee=${j.id}`}
+                    className="text-xs px-2 py-0.5 rounded-full font-medium transition hover:scale-105 hover:brightness-125"
                     style={{
                       background: `#${div.color}20`,
                       color: `#${div.color}`,
@@ -100,7 +102,7 @@ export default async function CalendarPage() {
                     }}>
                     {div.short_name}
                     {done > 0 && <span className="ml-1 opacity-60">{done}/{total}</span>}
-                  </div>
+                  </Link>
                 ))}
               </div>
             </div>

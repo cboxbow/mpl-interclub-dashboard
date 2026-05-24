@@ -8,10 +8,14 @@ import { ArrowLeft } from 'lucide-react'
 
 export const revalidate = 30
 
-interface Props { params: { id: string } }
+interface Props {
+  params: { id: string }
+  searchParams?: { journee?: string }
+}
 
-export default async function DivisionPage({ params }: Props) {
+export default async function DivisionPage({ params, searchParams }: Props) {
   const divId = parseInt(params.id)
+  const selectedJourneeId = searchParams?.journee ? Number(searchParams.journee) : null
   const sb = getSupabaseAdmin()
 
   const [{ data: div }, { data: standings }, { data: matches }, { data: journees }] = await Promise.all([
@@ -31,19 +35,24 @@ export default async function DivisionPage({ params }: Props) {
     byJournee[m.journee_id].push(m)
   })
 
-  const jList = (journees ?? []).filter((j: Journee) => byJournee[j.id]?.length)
+  const jList = (journees ?? [])
+    .filter((j: Journee) => byJournee[j.id]?.length)
+    .filter((j: Journee) => !selectedJourneeId || j.id === selectedJourneeId)
+  const selectedJournee = selectedJourneeId
+    ? (journees ?? []).find((j: Journee) => j.id === selectedJourneeId)
+    : null
 
   return (
     <div className="space-y-6">
-      <Link href="/" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-cyan transition">
-        <ArrowLeft size={14}/> Retour au dashboard
+      <Link href={selectedJourneeId ? '/calendar' : '/'} className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-cyan transition">
+        <ArrowLeft size={14}/> Retour {selectedJourneeId ? 'au calendrier' : 'au dashboard'}
       </Link>
 
       <div className="flex items-center gap-3">
         <div className="w-4 h-4 rounded-full" style={{ background: `#${(div as Division).color}` }}/>
         <h1 className="text-2xl font-bold text-white">{(div as Division).name}</h1>
         <span className="text-sm text-gray-500">
-          {(div as Division).n_clubs} clubs · {(div as Division).format} · {matches?.length ?? 0} matchs
+          {(div as Division).n_clubs} clubs - {(div as Division).format} - {selectedJournee ? `J${selectedJournee.number} seulement` : `${matches?.length ?? 0} matchs`}
         </span>
       </div>
 

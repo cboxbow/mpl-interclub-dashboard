@@ -2,8 +2,39 @@ import Image from 'next/image'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import type { Club, ClubPlayer, Division } from '@/lib/types'
 import { UsersRound } from 'lucide-react'
+import { CLUB_CATALOG } from '@/lib/clubLogos'
 
 export const revalidate = 60
+
+const normalizeClubName = (name: string) =>
+  name.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Z0-9]/g, ' ')
+
+const catalogByName = new Map(CLUB_CATALOG.map(club => [club.name, club]))
+const catalogByNormalizedName = new Map(CLUB_CATALOG.map(club => [normalizeClubName(club.name), club.name]))
+
+const canonicalClubName = (name: string) => {
+  const normalized = normalizeClubName(name)
+  const exact = catalogByNormalizedName.get(normalized)
+  if (exact) return exact
+  if (normalized.includes('CANA')) return 'Cana Beau Plan'
+  if (normalized.includes('CLUB HOUSE') || normalized.includes('TAMARIN HOUSE')) return 'Club House Black River'
+  if (normalized.includes('CLUB MED')) return 'Club Med Albion'
+  if (normalized.includes('ENERGIA')) return 'Energia Pointe aux Canonniers'
+  if (normalized.includes('SPARC')) return 'SPARC Cascavelle'
+  if (normalized.includes('LABOUR')) return 'Labourdonnais Mapou'
+  if (normalized.includes('ISLA')) return 'Isla Padel Grand Baie'
+  if (normalized.includes('TERRES')) return 'Terres Brunes Sports & Leisure'
+  if (normalized.includes('MONT')) return 'Mont Choisy Golf'
+  if (normalized.includes('OXYGEN')) return 'Oxygen Moka'
+  if (normalized.includes('MOKA RANGER')) return 'Moka Rangers'
+  if (normalized.includes('STUDIO')) return 'Studio by RM Azuri'
+  if (normalized.includes('PORT CHAMBLY')) return 'I Padel by RM Port Chambly'
+  if (normalized.includes('IPADEL') || normalized.includes('I PADEL')) return 'I Padel by RM Hennessy'
+  if (normalized.includes('RM TAM')) return 'RM Club Tamarin'
+  if (normalized.includes('RM GRAND') || normalized.includes('RN1') || normalized.includes('FORBACH')) return 'RM Club Forbach'
+  if (normalized.includes('URBAN')) return 'Urban Sport Grand Baie'
+  return name
+}
 
 export default async function TeamsPublicPage() {
   const sb = getSupabaseAdmin()
@@ -23,9 +54,27 @@ export default async function TeamsPublicPage() {
   const grouped = new Map<string, Club[]>()
   ;((clubs ?? []) as Club[]).forEach(club => {
     if (/^Club [A-Z] \(D\d[HF]\)$/.test(club.name)) return
-    if (!grouped.has(club.name)) grouped.set(club.name, [])
-    grouped.get(club.name)?.push(club)
+    const canonical = canonicalClubName(club.name)
+    if (!grouped.has(canonical)) grouped.set(canonical, [])
+    grouped.get(canonical)?.push(club)
   })
+
+  const groupedEntries = [...grouped.entries()]
+    .map(([clubName, entries]) => {
+      const bestByDivision = new Map<number, Club>()
+      entries.forEach(entry => {
+        const current = bestByDivision.get(entry.division_id)
+        const entryRoster = playersByClub.get(entry.id)?.length ?? 0
+        const currentRoster = current ? (playersByClub.get(current.id)?.length ?? 0) : -1
+        if (!current || entryRoster > currentRoster || entry.name === clubName) bestByDivision.set(entry.division_id, entry)
+      })
+      return [clubName, [...bestByDivision.values()].sort((a, b) => {
+        const divA = divisionById.get(a.division_id)?.display_order ?? 999
+        const divB = divisionById.get(b.division_id)?.display_order ?? 999
+        return divA - divB
+      })] as const
+    })
+    .sort(([a], [b]) => a.localeCompare(b))
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
@@ -40,12 +89,15 @@ export default async function TeamsPublicPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        {[...grouped.entries()].map(([clubName, entries]) => (
+        {groupedEntries.map(([clubName, entries]) => {
+          const catalog = catalogByName.get(clubName)
+          const logoUrl = catalog?.logoUrl || entries.find(entry => entry.logo_url)?.logo_url
+          return (
           <section key={clubName} className="glass-panel overflow-hidden rounded-xl">
             <div className="flex items-center gap-3 border-b border-cyan/20 px-4 py-3">
               <div className="flex h-14 w-16 items-center justify-center overflow-hidden rounded border border-white/10 bg-black/30">
-                {entries[0]?.logo_url ? (
-                  <Image src={entries[0].logo_url} alt={clubName} width={64} height={52} className="max-h-12 w-auto object-contain"/>
+                {logoUrl ? (
+                  <Image src={logoUrl} alt={clubName} width={64} height={52} className="max-h-12 w-auto object-contain"/>
                 ) : (
                   <span className="text-[10px] text-gray-600">Logo</span>
                 )}
@@ -97,7 +149,7 @@ export default async function TeamsPublicPage() {
               })}
             </div>
           </section>
-        ))}
+        )})}
       </div>
     </div>
   )

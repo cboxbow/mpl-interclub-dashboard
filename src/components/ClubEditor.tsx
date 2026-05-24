@@ -107,16 +107,31 @@ export default function ClubEditor({ clubs: initial, divisions, catalog = [] }: 
   }
 
   const deleteTeam = async (club: Club) => {
-    if (!window.confirm(`Supprimer ${club.name} de cette division ?`)) return
+    if (!window.confirm(`Supprimer ${club.name} de cette division ? Les matchs, scores et joueurs lies a cette equipe seront aussi retires.`)) return
     setSaving(true)
     setMessage('')
-    const sb = getSupabase()
-    const { error } = await sb.from('clubs').delete().eq('id', club.id)
-    if (error) {
-      setMessage(`Erreur suppression: ${error.message}. Si cette equipe a deja des matchs, retire ou modifie les matchs avant suppression.`)
+    const response = await fetch(`/api/admin/clubs/${club.id}`, { method: 'DELETE' })
+    const json = await response.json()
+    if (!response.ok) {
+      setMessage(`Erreur suppression: ${json.error}`)
     } else {
       setClubs(prev => prev.filter(item => item.id !== club.id))
-      setMessage('Equipe supprimee de la division.')
+      setMessage(`Equipe supprimee. ${json.deleted_matches ?? 0} match(s) retire(s).`)
+    }
+    setSaving(false)
+  }
+
+  const resetDivision = async (div: Division) => {
+    if (!window.confirm(`Remettre ${div.name} a zero ? Tous les clubs, joueurs, matchs et scores de cette division seront effaces.`)) return
+    setSaving(true)
+    setMessage('')
+    const response = await fetch(`/api/admin/divisions/${div.id}/reset`, { method: 'DELETE' })
+    const json = await response.json()
+    if (!response.ok) {
+      setMessage(`Erreur reset: ${json.error}`)
+    } else {
+      setClubs(prev => prev.filter(club => club.division_id !== div.id))
+      setMessage(`${div.name} remis a zero: ${json.deleted_clubs ?? 0} club(s), ${json.deleted_matches ?? 0} match(s).`)
     }
     setSaving(false)
   }
@@ -140,6 +155,13 @@ export default function ClubEditor({ clubs: initial, divisions, catalog = [] }: 
               className="ml-auto inline-flex items-center gap-1.5 rounded-md border border-cyan/30 px-2 py-1 text-xs text-cyan hover:bg-cyan/10"
             >
               <Plus size={13}/> Ajouter
+            </button>
+            <button
+              onClick={() => resetDivision(div)}
+              disabled={saving || !divisionClubs.length}
+              className="inline-flex items-center gap-1.5 rounded-md border border-red-400/30 px-2 py-1 text-xs text-red-200 hover:bg-red-500/10 disabled:opacity-40"
+            >
+              <Trash2 size={13}/> Reset division
             </button>
           </div>
           <div className="divide-y divide-white/5">

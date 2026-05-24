@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Clipboard, ListChecks, ShieldCheck, Trophy, Users } from 'lucide-react'
+import { CalendarDays, Clipboard, ListChecks, ShieldCheck, Trophy, Users } from 'lucide-react'
 
 export default function AdminPage() {
   return (
@@ -24,7 +24,7 @@ export default function AdminPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 max-w-6xl">
         <Link href="/admin/scores"
           className="glass-panel rounded-xl p-6 hover:border-cyan/50 hover:bg-cyan/5 transition group">
           <Clipboard size={28} className="text-cyan mb-3 group-hover:scale-110 transition"/>
@@ -48,6 +48,12 @@ export default function AdminPage() {
           <Trophy size={28} className="text-cyan mb-3 group-hover:scale-110 transition"/>
           <div className="font-bold text-lg mb-1">Classements</div>
           <div className="text-sm text-gray-400">Voir les rankings hommes/dames avec club, telephone et points.</div>
+        </Link>
+        <Link href="/admin/calendar"
+          className="glass-panel rounded-xl p-6 hover:border-cyan/50 hover:bg-cyan/5 transition group">
+          <CalendarDays size={28} className="text-cyan mb-3 group-hover:scale-110 transition"/>
+          <div className="font-bold text-lg mb-1">Calendrier</div>
+          <div className="text-sm text-gray-400">Modifier les dates, importer/exporter et remettre les journees a zero.</div>
         </Link>
       </div>
     </div>

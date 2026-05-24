@@ -5,9 +5,6 @@ interface Props {
   compact?: boolean
 }
 
-const medal = (r: number) =>
-  r === 1 ? '🥇' : r === 2 ? '🥈' : r === 3 ? '🥉' : String(r)
-
 export default function StandingsTable({ standings, compact = false }: Props) {
   if (!standings.length) return (
     <div className="text-center py-8 text-gray-500 text-sm">Aucun résultat pour l'instant</div>
@@ -37,7 +34,7 @@ export default function StandingsTable({ standings, compact = false }: Props) {
               className={`border-t border-white/5 transition
                 ${i === 0 ? 'bg-cyan/10' : i === 1 ? 'bg-cyan/5' : 'hover:bg-white/5'}`}
             >
-              <td className="px-3 py-2 text-center text-base">{medal(s.rank)}</td>
+              <td className="px-3 py-2 text-center text-sm font-semibold text-gray-300">{s.rank}</td>
               <td className="px-3 py-2 font-medium text-gray-100">{s.club_name}</td>
               <td className="px-3 py-2 text-center text-gray-400">{s.mj}</td>
               <td className="px-3 py-2 text-center text-green-400">{s.v}</td>

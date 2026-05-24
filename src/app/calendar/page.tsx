@@ -5,6 +5,16 @@ import Link from 'next/link'
 
 export const revalidate = 3600
 
+const cdcNotes: Record<number, string> = {
+  1: "Coup d'envoi officiel",
+  4: 'Finale D2 Dames',
+  5: 'Finale D3 Dames',
+  6: 'Fin poules D1 Dames',
+  7: 'Demi-finales D1 Hommes + finale D1 Dames',
+  8: 'Grande finale D1 Hommes + finales D3/D4 Hommes',
+  9: 'Finale D2 Hommes + cloture saison',
+}
+
 export default async function CalendarPage() {
   const sb = getSupabaseAdmin()
   const [{ data: journees }, { data: matches }, { data: divisions }] = await Promise.all([
@@ -35,7 +45,7 @@ export default async function CalendarPage() {
             <p className="text-sm text-cyan mt-2 font-semibold uppercase tracking-[0.18em]">
               Every club. Every player. Every point counts.
             </p>
-            <p className="text-sm text-gray-400 mt-1">3e vendredi de chaque mois</p>
+            <p className="text-sm text-gray-400 mt-1">CDC v3.0 - J1 a J9, 3e vendredi de chaque mois</p>
           </div>
           <div className="flex items-start gap-3 rounded-xl border border-cyan/20 bg-cyan/10 p-3 max-w-md">
             <ShieldCheck size={20} className="text-cyan shrink-0 mt-0.5"/>
@@ -67,6 +77,11 @@ export default async function CalendarPage() {
                 <div>
                   <div className="font-bold text-cyan text-lg">J{j.number}</div>
                   <div className="text-sm text-gray-300">{j.label}</div>
+                  {cdcNotes[j.number] && (
+                    <div className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-cyan/80">
+                      {cdcNotes[j.number]}
+                    </div>
+                  )}
                 </div>
                 <div className={`text-xs px-2 py-0.5 rounded-full font-medium
                   ${j.status==='completed' ? 'bg-green-500/20 text-green-400'

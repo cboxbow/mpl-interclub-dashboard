@@ -1,4 +1,4 @@
--- CDC v2.0 standings points:
+-- CDC v3.0 standings points:
 -- 3-0 = winner 3 pts / loser 0 pt
 -- 2-1 = winner 2 pts / loser 1 pt
 

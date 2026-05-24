@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import type { Club, ClubPlayer, Division } from '@/lib/types'
-import { ShieldCheck, Trophy, UsersRound } from 'lucide-react'
+import { ListChecks, Trophy, UsersRound } from 'lucide-react'
 import { CLUB_CATALOG } from '@/lib/clubLogos'
 
 export const revalidate = 60
@@ -75,7 +75,7 @@ export default async function TeamsPublicPage() {
       })] as const
     })
     .sort(([a], [b]) => a.localeCompare(b))
-  const publicClubCount = groupedEntries.length
+  const officialClubCount = groupedEntries.length
   const divisionEntriesCount = groupedEntries.reduce((sum, [, entries]) => sum + entries.length, 0)
   const filledPlayersCount = [...playersByClub.values()].reduce(
     (sum, roster) => sum + roster.filter(player => player.last_name || player.first_name || player.ranking !== null).length,
@@ -84,65 +84,61 @@ export default async function TeamsPublicPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-7">
-      <section className="relative -mx-4 -mt-6 min-h-[70vh] overflow-hidden border-b border-cyan/20 bg-black sm:rounded-b-[2rem]">
+      <section className="relative -mx-4 -mt-6 min-h-[72vh] overflow-hidden border-b border-cyan/20 bg-black sm:rounded-b-[2rem]">
         <img
           src="/interclub-teams-hero.gif"
           alt="Every club every player every point counts"
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,4,16,0.04)_0%,rgba(0,4,16,0.18)_42%,rgba(0,4,16,0.91)_100%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,4,16,0.74)_0%,rgba(0,4,16,0.22)_48%,rgba(0,4,16,0.34)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,4,16,0.02)_0%,rgba(0,4,16,0.04)_46%,rgba(0,4,16,0.78)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,4,16,0.50)_0%,rgba(0,4,16,0.10)_46%,rgba(0,4,16,0.18)_100%)]" />
         <div className="absolute inset-x-0 bottom-0 h-px bg-cyan/70 shadow-[0_0_34px_rgba(1,208,251,0.95)]" />
 
-        <div className="relative z-10 flex min-h-[70vh] flex-col justify-end px-4 pb-6 pt-28 sm:px-6 lg:px-8">
-          <div className="max-w-3xl">
-            <div className="mb-4 inline-flex items-center gap-2 border-l-2 border-cyan pl-4 text-xs font-black uppercase tracking-[0.30em] interclub-blue-text">
-              <UsersRound size={17}/> Equipes publiques
+        <div className="relative z-10 flex min-h-[72vh] flex-col justify-end px-4 pb-8 pt-28 sm:px-6 lg:px-8">
+          <div className="max-w-xl border-l-2 border-cyan bg-black/28 py-4 pl-4 pr-5 backdrop-blur-sm">
+            <div className="mb-3 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.28em] interclub-blue-text">
+              <UsersRound size={17}/> Equipes Interclub
             </div>
-            <h1 className="interclub-title text-4xl font-black uppercase leading-none sm:text-6xl lg:text-7xl">
-              La force des clubs
+            <h1 className="text-2xl font-black uppercase leading-none text-white drop-shadow-[0_0_18px_rgba(1,208,251,0.45)] sm:text-4xl">
+              Clubs & equipes
             </h1>
-            <p className="mt-4 max-w-2xl text-sm font-bold uppercase tracking-[0.18em] text-cyan sm:text-base">
-              Every club. Every player. Every point counts.
+            <p className="mt-3 text-sm leading-6 text-gray-200 sm:text-base">
+              Les clubs engages, leurs divisions et leurs compositions, reunis dans une lecture claire pour suivre la competition.
             </p>
-            <p className="mt-4 max-w-2xl text-sm leading-6 text-gray-200 sm:text-base">
-              Une vue publique claire des equipes engagees: noms et ranking uniquement.
-              Les contacts, licences et notes restent reserves a l'administration.
-            </p>
-          </div>
-
-          <div className="mt-7 grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-cyan/20 bg-cyan/20 sm:grid-cols-3">
-            <div className="bg-black/45 p-4 backdrop-blur">
-              <div className="text-3xl font-black text-white">{publicClubCount}</div>
-              <div className="text-xs uppercase tracking-[0.18em] text-cyan">Clubs publics</div>
-            </div>
-            <div className="bg-black/45 p-4 backdrop-blur">
-              <div className="text-3xl font-black text-white">{divisionEntriesCount}</div>
-              <div className="text-xs uppercase tracking-[0.18em] text-cyan">Equipes division</div>
-            </div>
-            <div className="bg-black/45 p-4 backdrop-blur">
-              <div className="text-3xl font-black text-white">{filledPlayersCount}</div>
-              <div className="text-xs uppercase tracking-[0.18em] text-cyan">Joueurs visibles</div>
-            </div>
           </div>
         </div>
       </section>
 
+      <div className="grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-cyan/20 bg-cyan/20 sm:grid-cols-3">
+        <div className="bg-black/45 p-4 backdrop-blur">
+          <div className="text-3xl font-black text-white">{officialClubCount}</div>
+          <div className="text-xs uppercase tracking-[0.18em] text-cyan">Clubs engages</div>
+        </div>
+        <div className="bg-black/45 p-4 backdrop-blur">
+          <div className="text-3xl font-black text-white">{divisionEntriesCount}</div>
+          <div className="text-xs uppercase tracking-[0.18em] text-cyan">Equipes en division</div>
+        </div>
+        <div className="bg-black/45 p-4 backdrop-blur">
+          <div className="text-3xl font-black text-white">{filledPlayersCount}</div>
+          <div className="text-xs uppercase tracking-[0.18em] text-cyan">Joueurs inscrits</div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="glass-panel rounded-xl p-4">
           <UsersRound size={22} className="mb-3 text-cyan"/>
-          <div className="font-black uppercase text-white">Un club, plusieurs divisions</div>
-          <p className="mt-1 text-sm text-gray-300">Les clubs sont regroupes par identite officielle pour eviter les doublons publics.</p>
+          <div className="font-black uppercase text-white">Identite club</div>
+          <p className="mt-1 text-sm text-gray-300">Chaque club est regroupe sous son identite officielle, meme lorsqu'il joue plusieurs divisions.</p>
+        </div>
+        <div className="glass-panel rounded-xl p-4">
+          <ListChecks size={22} className="mb-3 text-cyan"/>
+          <div className="font-black uppercase text-white">Equipes par division</div>
+          <p className="mt-1 text-sm text-gray-300">Les compositions se lisent directement sous chaque division pour comparer les forces en presence.</p>
         </div>
         <div className="glass-panel rounded-xl p-4">
           <Trophy size={22} className="mb-3 text-cyan"/>
-          <div className="font-black uppercase text-white">Ranking lisible</div>
-          <p className="mt-1 text-sm text-gray-300">La page publique affiche seulement les noms et rankings utiles au suivi sportif.</p>
-        </div>
-        <div className="glass-panel rounded-xl p-4">
-          <ShieldCheck size={22} className="mb-3 text-cyan"/>
-          <div className="font-black uppercase text-white">Details proteges</div>
-          <p className="mt-1 text-sm text-gray-300">Telephones, licences et notes restent dans l'espace admin pour les operations.</p>
+          <div className="font-black uppercase text-white">Lecture sportive</div>
+          <p className="mt-1 text-sm text-gray-300">Les rankings donnent un repere rapide avant les premiers resultats de la saison.</p>
         </div>
       </div>
 

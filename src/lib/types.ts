@@ -42,6 +42,21 @@ export interface ClubPlayer {
   updated_at?: string
 }
 
+export interface PlayerRanking {
+  id?: number
+  gender: 'H' | 'F'
+  rank: number | null
+  previous_rank?: number | null
+  player_name: string
+  total_points: number
+  club_name?: string | null
+  source_club_name?: string | null
+  mobile?: string | null
+  email?: string | null
+  level?: string | null
+  source?: string | null
+}
+
 export interface Journee {
   id: number
   number: number

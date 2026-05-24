@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Clipboard, ListChecks, ShieldCheck, Users } from 'lucide-react'
+import { Clipboard, ListChecks, ShieldCheck, Trophy, Users } from 'lucide-react'
 
 export default function AdminPage() {
   return (
@@ -24,7 +24,7 @@ export default function AdminPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl">
         <Link href="/admin/scores"
           className="glass-panel rounded-xl p-6 hover:border-cyan/50 hover:bg-cyan/5 transition group">
           <Clipboard size={28} className="text-cyan mb-3 group-hover:scale-110 transition"/>
@@ -42,6 +42,12 @@ export default function AdminPage() {
           <ListChecks size={28} className="text-cyan mb-3 group-hover:scale-110 transition"/>
           <div className="font-bold text-lg mb-1">Equipes completes</div>
           <div className="text-sm text-gray-400">Remplir les joueurs, calculer le poids total, importer ou exporter Excel/CSV.</div>
+        </Link>
+        <Link href="/admin/rankings"
+          className="glass-panel rounded-xl p-6 hover:border-cyan/50 hover:bg-cyan/5 transition group">
+          <Trophy size={28} className="text-cyan mb-3 group-hover:scale-110 transition"/>
+          <div className="font-bold text-lg mb-1">Classements</div>
+          <div className="text-sm text-gray-400">Voir les rankings hommes/dames avec club, telephone et points.</div>
         </Link>
       </div>
     </div>

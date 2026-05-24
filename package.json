@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "import:rankings": "node scripts/import-rankings.cjs --supabase",
+    "import:rankings:sql": "node scripts/import-rankings.cjs --sql"
   },
   "dependencies": {
     "@supabase/ssr": "^0.3.0",

@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useRef, useState } from 'react'
-import { Download, Plus, Save, Search, Trash2, Upload } from 'lucide-react'
+import { Download, FileSpreadsheet, Plus, Save, Search, Trash2, Upload } from 'lucide-react'
 import type { PlayerRanking } from '@/lib/types'
 
 type Draft = PlayerRanking & { local_id: string }
@@ -161,6 +161,14 @@ export default function RankingsEditor({ initialRows }: { initialRows: PlayerRan
     URL.revokeObjectURL(url)
   }
 
+  const exportExcel = async () => {
+    const XLSX = await import('xlsx')
+    const wb = XLSX.utils.book_new()
+    const ws = XLSX.utils.json_to_sheet(cleanRows(rows))
+    XLSX.utils.book_append_sheet(wb, ws, 'Classements')
+    XLSX.writeFile(wb, 'classements-interclub.xlsx')
+  }
+
   return (
     <div className="space-y-4">
       <div className="glass-panel rounded-xl p-4">
@@ -190,6 +198,9 @@ export default function RankingsEditor({ initialRows }: { initialRows: PlayerRan
             <button onClick={exportCsv} className="inline-flex items-center gap-2 rounded-md border border-white/10 px-3 py-2 text-xs text-gray-200 hover:bg-white/10">
               <Download size={14}/> CSV
             </button>
+            <button onClick={exportExcel} className="inline-flex items-center gap-2 rounded-md border border-white/10 px-3 py-2 text-xs text-gray-200 hover:bg-white/10">
+              <FileSpreadsheet size={14}/> Excel
+            </button>
             <button onClick={clearAll} disabled={saving} className="inline-flex items-center gap-2 rounded-md border border-red-400/30 px-3 py-2 text-xs text-red-200 hover:bg-red-500/10 disabled:opacity-50">
               <Trash2 size={14}/> Effacer tout
             </button>
@@ -209,7 +220,7 @@ export default function RankingsEditor({ initialRows }: { initialRows: PlayerRan
             <input
               value={search}
               onChange={event => setSearch(event.target.value)}
-              placeholder="Rechercher joueur, club, tel, email..."
+              placeholder="Rechercher joueur, club, rang, points..."
               className="w-full bg-transparent text-white outline-none placeholder:text-gray-500"
             />
           </label>
@@ -218,7 +229,7 @@ export default function RankingsEditor({ initialRows }: { initialRows: PlayerRan
 
       <div className="glass-panel overflow-hidden rounded-xl">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[1040px] text-sm">
+          <table className="w-full min-w-[780px] text-sm">
             <thead className="bg-cyan/10 text-xs uppercase text-cyan">
               <tr>
                 <th className="px-2 py-2 text-left">Genre</th>
@@ -226,8 +237,6 @@ export default function RankingsEditor({ initialRows }: { initialRows: PlayerRan
                 <th className="px-2 py-2 text-left">Joueur</th>
                 <th className="px-2 py-2 text-left">Points</th>
                 <th className="px-2 py-2 text-left">Club</th>
-                <th className="px-2 py-2 text-left">Tel</th>
-                <th className="px-2 py-2 text-left">Email</th>
                 <th className="px-2 py-2"></th>
               </tr>
             </thead>
@@ -255,14 +264,6 @@ export default function RankingsEditor({ initialRows }: { initialRows: PlayerRan
                   </td>
                   <td className="px-2 py-2">
                     <input value={row.club_name ?? ''} onChange={event => updateRow(row.local_id, 'club_name', event.target.value)}
-                      className="w-56 rounded border border-white/10 bg-black/25 px-2 py-1.5 text-white outline-none focus:border-cyan"/>
-                  </td>
-                  <td className="px-2 py-2">
-                    <input value={row.mobile ?? ''} onChange={event => updateRow(row.local_id, 'mobile', event.target.value)}
-                      className="w-28 rounded border border-white/10 bg-black/25 px-2 py-1.5 text-white outline-none focus:border-cyan"/>
-                  </td>
-                  <td className="px-2 py-2">
-                    <input value={row.email ?? ''} onChange={event => updateRow(row.local_id, 'email', event.target.value)}
                       className="w-56 rounded border border-white/10 bg-black/25 px-2 py-1.5 text-white outline-none focus:border-cyan"/>
                   </td>
                   <td className="px-2 py-2">

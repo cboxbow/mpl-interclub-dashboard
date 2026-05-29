@@ -39,17 +39,18 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-8">
       <section className="-mx-4 -mt-6 overflow-hidden border-b border-cyan/25 bg-[#010712] md:hidden">
-        <div className="relative flex h-[58svh] min-h-[390px] items-start justify-center overflow-hidden bg-black">
+        <div className="relative flex h-[43svh] min-h-[310px] items-start justify-center overflow-hidden bg-black">
           <img
             src="/interclub-2026-hero.gif"
             alt="Interclub 2026 Mauritius Padel League"
-            className="h-full w-full object-contain object-top"
+            className="h-full w-full scale-[1.08] object-contain object-top"
           />
-          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,4,16,0.04)_0%,rgba(0,4,16,0.02)_48%,rgba(0,4,16,0.72)_100%)]" />
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,4,16,0.02)_0%,rgba(0,4,16,0.00)_50%,rgba(0,4,16,0.34)_100%)]" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-[radial-gradient(circle_at_50%_100%,rgba(1,208,251,0.28),transparent_64%)]" />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-cyan/80 shadow-[0_0_30px_rgba(1,208,251,0.95)]" />
         </div>
 
-        <div className="relative bg-[linear-gradient(180deg,rgba(1,7,18,0.98),rgba(0,14,42,0.96))] px-4 pb-5 pt-5">
+        <div className="relative bg-[linear-gradient(180deg,rgba(1,7,18,0.98),rgba(0,14,42,0.96))] px-4 pb-5 pt-4">
           <div className="absolute inset-x-6 top-0 h-px bg-cyan/40 shadow-[0_0_28px_rgba(1,208,251,0.85)]" />
           <div className="mx-auto max-w-sm">
             <div className="mb-3 inline-flex border-l-2 border-cyan pl-3 text-[10px] font-black uppercase tracking-[0.24em] interclub-blue-text">

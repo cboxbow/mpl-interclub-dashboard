@@ -90,12 +90,12 @@ export default async function TeamsPublicPage() {
           alt="Every club every player every point counts"
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,4,16,0.02)_0%,rgba(0,4,16,0.04)_46%,rgba(0,4,16,0.78)_100%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,4,16,0.50)_0%,rgba(0,4,16,0.10)_46%,rgba(0,4,16,0.18)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,4,16,0.02)_0%,rgba(0,4,16,0.03)_48%,rgba(0,4,16,0.50)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,4,16,0.46)_0%,rgba(0,4,16,0.08)_46%,rgba(0,4,16,0.14)_100%)]" />
         <div className="absolute inset-x-0 bottom-0 h-px bg-cyan/70 shadow-[0_0_34px_rgba(1,208,251,0.95)]" />
 
-        <div className="relative z-10 flex min-h-[72vh] flex-col justify-end px-4 pb-8 pt-28 sm:px-6 lg:px-8">
-          <div className="max-w-xl border-l-2 border-cyan bg-black/28 py-4 pl-4 pr-5 backdrop-blur-sm">
+        <div className="relative z-10 flex min-h-[72vh] flex-col justify-end px-4 pb-28 pt-28 sm:px-6 lg:px-8">
+          <div className="max-w-xl -translate-y-10 border-l-2 border-cyan bg-black/18 py-4 pl-4 pr-5 backdrop-blur-[2px]">
             <div className="mb-3 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.28em] interclub-blue-text">
               <UsersRound size={17}/> Equipes Interclub
             </div>

@@ -39,25 +39,31 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-8">
       <section className="-mx-4 -mt-6 overflow-hidden border-b border-cyan/25 bg-[#010712] md:hidden">
-        <div className="relative flex h-[43svh] min-h-[310px] items-start justify-center overflow-hidden bg-black">
+        <div className="relative flex min-h-[300px] items-start justify-center overflow-hidden bg-black py-0">
+          <img
+            src="/interclub-2026-hero.gif"
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full scale-125 object-cover object-center opacity-45 blur-xl"
+          />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(1,208,251,0.16),transparent_44%),linear-gradient(180deg,rgba(0,4,16,0.22)_0%,rgba(0,4,16,0.02)_45%,rgba(0,4,16,0.78)_100%)]" />
           <img
             src="/interclub-2026-hero.gif"
             alt="Interclub 2026 Mauritius Padel League"
-            className="h-full w-full scale-[1.08] object-contain object-top"
+            className="relative z-10 aspect-[16/9] w-full max-w-[520px] object-contain object-top"
           />
-          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,4,16,0.02)_0%,rgba(0,4,16,0.00)_50%,rgba(0,4,16,0.34)_100%)]" />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-[radial-gradient(circle_at_50%_100%,rgba(1,208,251,0.28),transparent_64%)]" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-16 bg-[radial-gradient(circle_at_50%_100%,rgba(1,208,251,0.34),transparent_64%)]" />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-cyan/80 shadow-[0_0_30px_rgba(1,208,251,0.95)]" />
         </div>
 
-        <div className="relative bg-[linear-gradient(180deg,rgba(1,7,18,0.98),rgba(0,14,42,0.96))] px-4 pb-5 pt-4">
+        <div className="relative -mt-px bg-[linear-gradient(180deg,rgba(1,7,18,0.98),rgba(0,14,42,0.96))] px-4 pb-5 pt-4">
           <div className="absolute inset-x-6 top-0 h-px bg-cyan/40 shadow-[0_0_28px_rgba(1,208,251,0.85)]" />
           <div className="mx-auto max-w-sm">
             <div className="mb-3 inline-flex border-l-2 border-cyan pl-3 text-[10px] font-black uppercase tracking-[0.24em] interclub-blue-text">
               One island. {campaignClubCount} clubs. 1 identity.
             </div>
-            <h1 className="interclub-title text-[2.35rem] font-black uppercase leading-[0.86] tracking-0">
-              Interclub 2026
+            <h1 className="interclub-title text-[2.15rem] font-black uppercase leading-[0.9] tracking-0">
+              One championship.
             </h1>
             <p className="mt-3 text-xs font-black uppercase tracking-[0.18em] text-cyan">
               Every club. Every player. Every point counts.

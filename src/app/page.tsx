@@ -124,8 +124,8 @@ export default async function DashboardPage() {
         <div className="absolute inset-x-0 top-0 h-32 bg-[radial-gradient(circle_at_50%_0%,rgba(1,208,251,0.30),transparent_62%)]" />
         <div className="absolute inset-x-0 bottom-0 h-px bg-cyan/70 shadow-[0_0_32px_rgba(1,208,251,0.95)]" />
 
-        <div className="relative z-10 mx-auto flex min-h-[calc(100vh-88px)] max-w-7xl flex-col justify-end px-4 pb-6 pt-28 sm:px-6 lg:px-8">
-          <div className="grid items-end gap-6 lg:grid-cols-[1fr_360px]">
+        <div className="relative z-10 mx-auto flex min-h-[calc(100vh-88px)] max-w-7xl flex-col justify-center px-4 pb-28 pt-24 sm:px-6 lg:px-8">
+          <div className="grid -translate-y-6 items-end gap-6 lg:grid-cols-[1fr_360px]">
             <div className="max-w-3xl">
               <div className="mb-3 inline-flex border-l-2 border-cyan pl-3 text-[10px] font-black uppercase tracking-[0.24em] interclub-blue-text sm:mb-4 sm:pl-4 sm:text-xs sm:tracking-[0.34em]">
                 One island. {campaignClubCount} clubs. 1 identity.

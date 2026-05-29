@@ -14,7 +14,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen site-bg">
         <ScrollToTop />
         <Navbar />
-        <div className="relative border-b border-cyan/15 bg-black/20 backdrop-blur-sm">
+        <div className="relative hidden border-b border-cyan/15 bg-black/20 backdrop-blur-sm sm:block">
           <div className="max-w-7xl mx-auto px-4 py-2 flex flex-col gap-1 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
             <span className="text-[11px] font-black uppercase tracking-[0.24em] text-cyan drop-shadow-[0_0_14px_rgba(1,208,251,0.7)]">
               Interclub 2026

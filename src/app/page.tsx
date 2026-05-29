@@ -174,23 +174,26 @@ export default async function DashboardPage() {
             )}
           </div>
 
-          <div className="mt-4 grid grid-cols-4 gap-px overflow-hidden rounded-xl border border-cyan/20 bg-cyan/20 sm:mt-8">
-            <div className="bg-black/45 p-3 backdrop-blur">
-              <div className="text-xl font-black text-white sm:text-2xl">{campaignClubCount}</div>
-              <div className="text-[10px] uppercase tracking-[0.14em] text-cyan sm:text-xs sm:tracking-[0.18em]">Clubs</div>
-            </div>
-            <div className="bg-black/45 p-3 backdrop-blur">
-              <div className="text-xl font-black text-white sm:text-2xl">{divisions?.length ?? 0}</div>
-              <div className="text-[10px] uppercase tracking-[0.14em] text-cyan sm:text-xs sm:tracking-[0.18em]">Divisions</div>
-            </div>
-            <div className="bg-black/45 p-3 backdrop-blur">
-              <div className="text-xl font-black text-white sm:text-2xl">2026</div>
-              <div className="text-[10px] uppercase tracking-[0.14em] text-cyan sm:text-xs sm:tracking-[0.18em]">Saison 1</div>
-            </div>
-            <div className="bg-black/45 p-3 backdrop-blur">
-              <div className="text-xl font-black text-white sm:text-2xl">MPL</div>
-              <div className="text-[10px] uppercase tracking-[0.14em] text-cyan sm:text-xs sm:tracking-[0.18em]">Officiel</div>
-            </div>
+        </div>
+      </section>
+
+      <section className="hidden md:block">
+        <div className="-mt-2 grid grid-cols-4 gap-px overflow-hidden rounded-xl border border-cyan/20 bg-cyan/20 shadow-[0_0_34px_rgba(1,208,251,0.12)]">
+          <div className="bg-black/45 p-4 backdrop-blur">
+            <div className="text-2xl font-black text-white">{campaignClubCount}</div>
+            <div className="text-xs uppercase tracking-[0.18em] text-cyan">Clubs</div>
+          </div>
+          <div className="bg-black/45 p-4 backdrop-blur">
+            <div className="text-2xl font-black text-white">{divisions?.length ?? 0}</div>
+            <div className="text-xs uppercase tracking-[0.18em] text-cyan">Divisions</div>
+          </div>
+          <div className="bg-black/45 p-4 backdrop-blur">
+            <div className="text-2xl font-black text-white">2026</div>
+            <div className="text-xs uppercase tracking-[0.18em] text-cyan">Saison 1</div>
+          </div>
+          <div className="bg-black/45 p-4 backdrop-blur">
+            <div className="text-2xl font-black text-white">MPL</div>
+            <div className="text-xs uppercase tracking-[0.18em] text-cyan">Officiel</div>
           </div>
         </div>
       </section>

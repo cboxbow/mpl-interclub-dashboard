@@ -38,18 +38,86 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <section className="relative -mx-4 -mt-6 min-h-[calc(100svh-92px)] overflow-hidden border-b border-cyan/20 bg-black sm:rounded-b-[2rem] md:min-h-[calc(100vh-88px)]">
+      <section className="-mx-4 -mt-6 overflow-hidden border-b border-cyan/25 bg-[#010712] md:hidden">
+        <div className="relative flex h-[58svh] min-h-[390px] items-start justify-center overflow-hidden bg-black">
+          <img
+            src="/interclub-2026-hero.gif"
+            alt="Interclub 2026 Mauritius Padel League"
+            className="h-full w-full object-contain object-top"
+          />
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,4,16,0.04)_0%,rgba(0,4,16,0.02)_48%,rgba(0,4,16,0.72)_100%)]" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-cyan/80 shadow-[0_0_30px_rgba(1,208,251,0.95)]" />
+        </div>
+
+        <div className="relative bg-[linear-gradient(180deg,rgba(1,7,18,0.98),rgba(0,14,42,0.96))] px-4 pb-5 pt-5">
+          <div className="absolute inset-x-6 top-0 h-px bg-cyan/40 shadow-[0_0_28px_rgba(1,208,251,0.85)]" />
+          <div className="mx-auto max-w-sm">
+            <div className="mb-3 inline-flex border-l-2 border-cyan pl-3 text-[10px] font-black uppercase tracking-[0.24em] interclub-blue-text">
+              One island. {campaignClubCount} clubs. 1 identity.
+            </div>
+            <h1 className="interclub-title text-[2.35rem] font-black uppercase leading-[0.86] tracking-0">
+              Interclub 2026
+            </h1>
+            <p className="mt-3 text-xs font-black uppercase tracking-[0.18em] text-cyan">
+              Every club. Every player. Every point counts.
+            </p>
+            <p className="mt-3 text-sm leading-6 text-gray-200">
+              Le championnat qui rassemble les clubs de l'ile Maurice dans une meme identite sportive.
+            </p>
+
+            <div className="mt-5 grid grid-cols-2 gap-2">
+              <Link href="/calendar" className="inline-flex items-center justify-center gap-2 rounded-md bg-cyan px-3 py-3 text-xs font-black uppercase text-navy shadow-[0_0_28px_rgba(1,208,251,0.45)] transition hover:bg-white">
+                <Calendar size={17}/> Calendrier
+              </Link>
+              <Link href="/teams" className="inline-flex items-center justify-center gap-2 rounded-md border border-cyan/50 bg-black/35 px-3 py-3 text-xs font-bold uppercase text-cyan backdrop-blur transition hover:bg-cyan/10">
+                <Users size={17}/> Equipes
+              </Link>
+              <Link href="/admin/rankings" className="col-span-2 inline-flex items-center justify-center gap-2 rounded-md border border-white/20 bg-black/35 px-3 py-3 text-xs font-bold uppercase text-white backdrop-blur transition hover:border-cyan/60 hover:text-cyan">
+                <Trophy size={17}/> Classements
+              </Link>
+            </div>
+
+            {nextJournee && nextDate && (
+              <div className="mt-4 flex items-center justify-between rounded-lg border border-cyan/25 bg-black/45 px-3 py-2 text-xs backdrop-blur">
+                <span className="font-black uppercase tracking-[0.14em] text-cyan">Prochaine journee</span>
+                <span className="font-bold text-white">J{nextJournee.number} · {nextDate.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}</span>
+              </div>
+            )}
+
+            <div className="mt-4 grid grid-cols-4 gap-px overflow-hidden rounded-xl border border-cyan/20 bg-cyan/20">
+              <div className="bg-black/45 p-3 backdrop-blur">
+                <div className="text-xl font-black text-white">{campaignClubCount}</div>
+                <div className="text-[10px] uppercase tracking-[0.14em] text-cyan">Clubs</div>
+              </div>
+              <div className="bg-black/45 p-3 backdrop-blur">
+                <div className="text-xl font-black text-white">{divisions?.length ?? 0}</div>
+                <div className="text-[10px] uppercase tracking-[0.14em] text-cyan">Divisions</div>
+              </div>
+              <div className="bg-black/45 p-3 backdrop-blur">
+                <div className="text-xl font-black text-white">2026</div>
+                <div className="text-[10px] uppercase tracking-[0.14em] text-cyan">Saison 1</div>
+              </div>
+              <div className="bg-black/45 p-3 backdrop-blur">
+                <div className="text-xl font-black text-white">MPL</div>
+                <div className="text-[10px] uppercase tracking-[0.14em] text-cyan">Officiel</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="relative -mx-4 -mt-6 hidden min-h-[calc(100vh-88px)] overflow-hidden border-b border-cyan/20 bg-black sm:rounded-b-[2rem] md:block">
         <img
           src="/interclub-2026-hero.gif"
           alt="Interclub 2026 Mauritius Padel League"
-          className="absolute inset-0 h-full w-full scale-[1.06] object-cover object-[52%_42%] opacity-90 md:scale-100 md:object-center md:opacity-100"
+          className="absolute inset-0 h-full w-full object-cover object-center"
         />
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,4,16,0.82)_0%,rgba(0,4,16,0.30)_42%,rgba(0,4,16,0.22)_100%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,4,16,0.24)_0%,rgba(0,4,16,0.12)_33%,rgba(0,4,16,0.64)_62%,rgba(0,4,16,0.96)_100%)] md:bg-[linear-gradient(180deg,rgba(0,4,16,0.08)_0%,rgba(0,4,16,0.08)_46%,rgba(0,4,16,0.88)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,4,16,0.08)_0%,rgba(0,4,16,0.08)_46%,rgba(0,4,16,0.88)_100%)]" />
         <div className="absolute inset-x-0 top-0 h-32 bg-[radial-gradient(circle_at_50%_0%,rgba(1,208,251,0.30),transparent_62%)]" />
         <div className="absolute inset-x-0 bottom-0 h-px bg-cyan/70 shadow-[0_0_32px_rgba(1,208,251,0.95)]" />
 
-        <div className="relative z-10 mx-auto flex min-h-[calc(100svh-92px)] max-w-7xl flex-col justify-end px-4 pb-4 pt-10 sm:px-6 md:min-h-[calc(100vh-88px)] md:pb-6 md:pt-28 lg:px-8">
+        <div className="relative z-10 mx-auto flex min-h-[calc(100vh-88px)] max-w-7xl flex-col justify-end px-4 pb-6 pt-28 sm:px-6 lg:px-8">
           <div className="grid items-end gap-6 lg:grid-cols-[1fr_360px]">
             <div className="max-w-3xl">
               <div className="mb-3 inline-flex border-l-2 border-cyan pl-3 text-[10px] font-black uppercase tracking-[0.24em] interclub-blue-text sm:mb-4 sm:pl-4 sm:text-xs sm:tracking-[0.34em]">
